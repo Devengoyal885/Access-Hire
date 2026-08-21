@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #F4F7FA;
+    --foreground: #16232E;
+    --navy-primary: #0B2E4F;
+    --teal-secondary: #1C7293;
+    --amber-accent: #F2A93B;
+    --card-bg: #FFFFFF;
+    --muted-text: #5B6B79;
+    --border-color: #E2E8F0;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+
+  h1, h2, h3, h4, .font-serif-heading {
+    font-family: Cambria, Georgia, 'Times New Roman', serif;
+  }
+}
+
+/* Custom Utilities for Enterprise SaaS Polish */
+.bg-navy-900 {
+  background-color: #0B2E4F;
+}
+
+.text-navy-900 {
+  color: #0B2E4F;
+}
+
+.border-navy-900 {
+  border-color: #0B2E4F;
+}
+
+.bg-teal-700 {
+  background-color: #1C7293;
+}
+
+.text-teal-700 {
+  color: #1C7293;
+}
+
+.border-teal-700 {
+  border-color: #1C7293;
+}
+
+.bg-amber-500 {
+  background-color: #F2A93B;
+}
+
+.text-amber-600 {
+  color: #D9822B;
+}
+
+.border-amber-500 {
+  border-color: #F2A93B;
+}
+
+.card-saas {
+  background-color: #FFFFFF;
+  border-radius: 0.75rem; /* 12px */
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px 0 rgba(11, 46, 79, 0.05), 0 1px 2px 0 rgba(11, 46, 79, 0.03);
+}
+
+.card-saas-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.card-saas-hover:hover {
+  box-shadow: 0 10px 15px -3px rgba(11, 46, 79, 0.08), 0 4px 6px -2px rgba(11, 46, 79, 0.04);
+  border-color: #CBD5E1;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F4F7FA;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
