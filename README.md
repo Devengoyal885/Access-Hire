@@ -1,372 +1,423 @@
-<div align="center">
+# AccessHire — Adaptive Capability Twin
 
-# 🌐 Access-Hire
+> **See Capability. Prove Potential. Enable Transition.**
 
-### An Adaptive Capability Twin for an Inclusive Workforce
-
-*AI is rewriting who gets to work. We make sure it rewrites the rules fairly.*
-
-[![SAP Hackfest](https://img.shields.io/badge/SAP%20Hackfest-Theme%202%3A%20Inclusive%20Workforce-0070F2?style=for-the-badge&logo=sap&logoColor=white)](https://github.com/Devengoyal885/Access-Hire)
-[![Team](https://img.shields.io/badge/Team-StarCoders-F2A93B?style=for-the-badge)](#-team-starcoders)
-[![License](https://img.shields.io/badge/License-MIT-1C7293?style=for-the-badge)](#-license)
-[![Status](https://img.shields.io/badge/Status-Hackathon%20Build-2E9E6B?style=for-the-badge)](#)
-
-[Problem](#-the-problem) · [Solution](#-our-solution) · [Architecture](#-system-architecture) · [Dashboards](#-product-walkthrough) · [Tech Stack](#-tech-stack) · [Team](#-team-starcoders)
-
-</div>
+[![Next.js](https://img.shields.io/badge/Next.js-16.3.1-black?logo=nextdotjs)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-13-FF0055?logo=framer)](https://www.framer.com/motion)
+[![SAP Hackfest 2026](https://img.shields.io/badge/SAP_Hackfest-2026-0070F3)](https://github.com/Devengoyal885/Access-Hire)
 
 ---
 
-## 📌 Table of Contents
+## What is AccessHire?
 
-- [The Problem](#-the-problem)
-- [Our Solution](#-our-solution)
-- [Core Concept — The Capability Twin](#-core-concept--the-capability-twin)
-- [System Architecture](#-system-architecture)
-- [Multi-Agent Ecosystem](#-multi-agent-ecosystem)
-- [Evidence-to-Transition Loop](#-evidence-to-transition-loop)
-- [Bias Audit & Inclusion Layer](#-bias-audit--inclusion-layer)
-- [Product Walkthrough](#-product-walkthrough)
-- [Competitive Landscape](#-competitive-landscape)
-- [Tech Stack](#-tech-stack)
-- [Getting Started](#-getting-started)
-- [Our Track Record](#-our-track-record)
-- [Team StarCoders](#-team-starcoders)
-- [License](#-license)
+AccessHire is an **AI Career & Workforce Operating System** built around one central intelligence layer — the **Adaptive Capability Twin**.
 
----
+It understands what a person can actually do, converts hidden and non-traditional experience into enterprise capabilities, identifies transferable capabilities, forecasts high-potential future career paths, creates targeted transition plans, verifies capabilities through practical work, discovers relevant opportunities, and helps employers make more inclusive workforce decisions.
 
-## 🧩 The Problem
+**AccessHire does NOT ask:**
+- Where did you study?
+- What was your previous job title?
+- How long is your career gap?
 
-> **"The challenge is no longer *will AI take jobs* — it's *who will AI leave behind.*"**
-
-AI is reshaping global employment and creating a **$5.5T global skills gap**. Traditional workforce systems still filter people by:
-
-`Job Title` · `Resume Keywords` · `Degree` · `Certifications` · `Years of Experience`
-
-This creates two blind spots:
-
-| 👤 For Employees | 🏢 For Companies |
-|---|---|
-| Someone may already have the skills for a new role — but gets rejected because their job title, resume, or degree doesn't match. Real capability stays invisible. | Companies only ask *"what job does this person hold?"* instead of *"what can they do, what's missing, and what could they become?"* — so they hire externally instead of reskilling. |
+**AccessHire asks:**
+- What can you actually do?
+- What evidence proves it?
+- What could you become?
+- What is the shortest path to get there?
 
 ---
 
-## 💡 Our Solution
-
-**Access-Hire** asks a better question:
-
-> ### "What can this person actually do — and what could they become?"
-
-We built an AI-powered workforce platform with two connected users:
-
-- 👤 **Employee** — *"What can I do, what can I become, and how do I get there?"*
-- 🏢 **Company / HR** — *"What capabilities do my employees have, what will we need, and who can I reskill instead of replacing?"*
+## The Problem
 
 ```
-Understand → Transfer → Forecast → Reskill → Verify → Opportunity
+CANDIDATES                          EMPLOYERS
+─────────                           ─────────
+Resume black holes                  Blind internal talent  
+Degree proxy barriers               Slow reskilling loops
+Career gap penalties                Unconscious screening bias
+Course completion traps             Inaccessible hiring workflows
+```
+
+Capable people get overlooked. Organizations struggle with critical skill shortages — even though the talent already exists inside their workforce.
+
+---
+
+## The Solution
+
+**One intelligent system. Everything connected.**
+
+```
+CAPABILITY → EVIDENCE → OPPORTUNITY → ACTION → PRACTICAL WORK → VERIFICATION → GROWTH → NEW CAPABILITY
 ```
 
 ---
 
-## 🧬 Core Concept — The Capability Twin
+## Core Philosophy
 
-Instead of a static label like `Python = Expert`, every person gets a **living, evidence-backed Capability Twin**.
-
-```mermaid
-graph LR
-    A["🧑 Employee"] --> B["Evidence Engine<br/>Projects · GitHub · Assessments · Work History"]
-    B --> C{{"⚡ Capability Twin"}}
-    C --> D["Proficiency: 87%"]
-    C --> E["Confidence: 94%"]
-    C --> F["Recency: High"]
-    C --> G["Independent Capability: 81%"]
-    C --> H["AI-Assisted Capability: 94%"]
-
-    style C fill:#0B2E4F,stroke:#F2A93B,stroke-width:2px,color:#fff
-    style A fill:#1C7293,color:#fff
-    style B fill:#F4F7FA,stroke:#1C7293
-```
-
-The system knows **what someone can do + how well + where + the evidence proving it** — not just a resume keyword match.
+| Traditional | AccessHire |
+|-------------|-----------|
+| Pedigree | **Capability** |
+| Claims | **Evidence** |
+| Static Resume | **Living Capability Twin** |
+| Job Search | **Opportunity Intelligence** |
+| Course List | **Targeted Transition** |
+| Prediction | **Practical Verification** |
+| Hiring Filter | **Inclusive Enablement** |
 
 ---
 
-## 🏗 System Architecture
+## The Adaptive Capability Twin
 
-The full pipeline — from raw evidence to a verified new opportunity — with governance built in at every high-stakes step.
+The Capability Twin is the signature feature of AccessHire. It is a **living, evidence-backed profile** of what you can actually do.
 
-```mermaid
-flowchart TD
-    EMP(["👤 Employee"]) --> EE["🔍 Evidence Engine"]
-    EE --> CT{{"⚡ Capability Twin"}}
-    CT --> CTG["🔗 Capability Transfer Graph"]
-    CTG --> AIO["🌐 AI Ontology + Market Intelligence"]
-    AIO --> FRF["📈 Future Role Forecast"]
-    FRF --> SG["🎯 Skill Gap"]
-    SG --> MT["⚡ Minimum Transition Path"]
-    MT --> LT["🎓 Learning + Practical Task"]
-    LT --> PT["🧪 Practical Test"]
-    PT --> VC["✅ Verified Capability"]
+### Twin Properties
 
-    VC --> ED["👤 Employee Dashboard"]
-    VC --> CD["🏢 Company Dashboard"]
+| Property | Description |
+|----------|-------------|
+| **Proficiency** | Current skill level (0–100%) |
+| **Evidence Confidence** | How strongly evidence supports the claim |
+| **Independent Capability** | What you can do without AI assistance |
+| **AI-Assisted Capability** | What you can do with AI tools |
+| **Recency** | How fresh the evidence is |
+| **Growth Timeline** | Historical capability development |
 
-    ED --> CG["🚀 Career Growth & Opportunities"]
-    CD --> WP["📊 Workforce Planning & Reskilling"]
+### Evidence Sources
 
-    CG --> HR(["🧑‍⚖️ Human Review"])
-    WP --> HR
+- 🐙 **GitHub** — repositories, commits, contributions
+- 🔨 **Projects** — portfolio work, side projects
+- 📋 **Practical Assessment** — verified work trials
+- 💼 **Work Evidence** — employment, freelance, community work
+- 🎓 **Certifications** — validated learning outcomes
 
-    style CT fill:#0B2E4F,stroke:#F2A93B,stroke-width:2px,color:#fff
-    style VC fill:#2E9E6B,color:#fff
-    style HR fill:#F2A93B,color:#0B2E4F,stroke-width:2px
-    style ED fill:#1C7293,color:#fff
-    style CD fill:#1C7293,color:#fff
+---
+
+## Platform Features
+
+### Individual Career OS
+
+#### 1. Command Center
+Personal dashboard with Career Momentum chart, AI-prioritized Next Best Actions, top capabilities overview, and opportunity radar preview.
+
+#### 2. Capability Twin
+Interactive capability graph with 12+ connected nodes. Click any node to open detailed evidence panel with proficiency scores, evidence timeline, and growth history.
+
+#### 3. Capability Translator ⭐ Key Demo Feature
+Describe lived experience in plain language → AI transforms it into verified enterprise capabilities.
+
+**Example:**
+> "I organize my village's annual festival. Around 5,000 people attend. I manage the budget, vendors, volunteers and logistics."
+
+**Translates to:**
+- Large-Scale Event Operations — 87%
+- Budget Management — 82%
+- Vendor Negotiation — 79%
+- Stakeholder Coordination — 91%
+- Team Leadership — 84%
+- Risk Management — 76%
+
+#### 4. Career Path Intelligence
+Shows connected future roles with readiness percentages, transferable capabilities, missing capabilities, and step-by-step transition roadmaps.
+
+#### 5. Practical Transition Trial
+Interactive simulated work environment where candidates complete real tasks (deploy AI service, identify failures, evaluate outputs, produce reports). Results verify capabilities and update the Twin.
+
+**After completion:**
+```
+Technical Execution    84%
+Problem Solving        89%
+AI Evaluation          78%
+Cloud Deployment       81%
+Independence           86%
+───────────────────────────
+CAPABILITY VERIFIED:   83%
+```
+
+#### 6. Opportunity Radar
+10+ opportunities matched to capabilities, with animated match rings, capability gap analysis, and intelligent filtering by type, location, compensation, and deadline.
+
+#### 7. Resume Studio
+Paste any job description → AI analyzes requirements → generates tailored, capability-grounded resume. ATS fit animates from 81% → 94%.
+
+**Integrity commitment:** Never fabricates experience, skills, or credentials.
+
+#### 8. Action Center
+Intelligent action queue combining opportunities, emails, assessments, interviews, and deadlines into one prioritized view.
+
+#### 9. Opportunity & Communication Intelligence (Mail Intelligence)
+AI-analyzed career emails with extracted events, recommended actions, and one-click action creation.
+
+#### 10. AI Workspace
+Multi-model AI environment with shared career context. Supports ChatGPT, Gemini, Claude, and Auto routing. Context Panel shows full capability context automatically.
+
+#### 11. Context Capsule ⭐ WOW Feature
+Compresses 42,800 tokens → 2,100 tokens (95% reduction). Creates a portable structured context package so another AI can continue the work without re-explanation.
+
+---
+
+### Enterprise Workforce OS
+
+#### 12. Workforce Capability Console
+Heatmap of department × capability scores across 6+ departments and 8+ capabilities. Color-coded by proficiency level.
+
+#### 13. Internal Mobility Engine
+Identifies employees ready to transition to high-demand roles internally. Calculates readiness percentages and transition counts. One-click reskilling plan generation.
+
+#### 14. Equity Nudge
+During candidate review, surfaces capability-based insights when career gaps are detected. Generates capability-based interview questions grounded in actual skills, not credentials.
+
+**Key principle:** "AI recommends. Humans decide."
+
+#### 15. Job Fairness Agent
+Analyzes job descriptions for credential proxies, geographic bias, and exclusionary language. Suggests capability-based rewrites. Human approval required.
+
+#### 16. Accessibility & Accommodation
+Generates tailored accommodation blueprints based on candidate capability, work requirements, and accessibility preferences. "Enable the person, not just filter for fit."
+
+#### 17. Bias Audit
+Tracks credential bias, career gap bias, geographic bias, and job title proxy across hiring decisions. Full audit trail with evidence, reasoning, and decision history.
+
+---
+
+## Architecture
+
+```
+app/
+├── page.tsx                    # Landing / Login page
+├── layout.tsx                  # Root layout (fonts, theme)
+├── globals.css                 # Design system (CSS variables)
+│
+├── (app)/                      # App shell group (sidebar + topbar)
+│   ├── layout.tsx              # Sidebar + Topbar shell
+│   ├── dashboard/              # Command Center
+│   ├── capability/             # Capability Twin (4 tabs)
+│   ├── opportunities/          # Opportunity Radar
+│   ├── resume/                 # Resume Studio
+│   ├── actions/                # Action Center + Mail Intelligence
+│   ├── workspace/              # AI Workspace + Context Capsule
+│   ├── workforce/              # Workforce Console (6 tabs)
+│   ├── profile/                # User Profile
+│   ├── settings/               # Privacy & Settings
+│   └── help/                   # Documentation
+│
+├── employee/                   # → redirects to /dashboard
+├── employer/                   # → redirects to /workforce
+├── translator/                 # → redirects to /capability?tab=translator
+├── accessibility/              # → redirects to /workforce
+└── how-it-works/              # → redirects to /help
+
+components/
+├── layout/
+│   ├── Sidebar.tsx             # Premium sidebar with logo + momentum
+│   ├── Topbar.tsx              # Search, notifications, theme, profile
+│   ├── CommandPalette.tsx      # Ctrl+K command palette
+│   └── ThemeSwitcher.tsx       # Dark/light mode toggle
+
+data/
+├── mockData.ts                 # All rich demo data (Priya's profile, 20+ caps, 10+ opps)
+
+lib/
+└── utils.ts                    # Utility functions (cn, formatDate, sleep, etc.)
+
+types/
+└── index.ts                    # Complete TypeScript type system
 ```
 
 ---
 
-## 🤖 Multi-Agent Ecosystem
+## AI Architecture
 
-Six specialized agents share one Capability Twin — built directly to the SAP Hackfest brief for a **fair, skills-first workforce platform**.
+```
+AIProvider (abstraction)
+├── ChatGPTProvider
+├── GeminiProvider
+├── ClaudeProvider
+└── MockProvider (demo mode)
 
-```mermaid
-graph TD
-    subgraph Agents["Multi-Agent System"]
-        SD["🔍 Skills Discovery Agent<br/><i>Builds the Capability Twin<br/>from evidence</i>"]
-        MI["📈 Market Intelligence Agent<br/><i>Tracks skills → tasks → jobs<br/>→ market demand</i>"]
-        LP["🎓 Learning Pathway Agent<br/><i>Calculates the minimum<br/>reskilling path</i>"]
-        IM["🤝 Inclusive Matching Agent<br/><i>Matches on capability,<br/>never pedigree</i>"]
-        BA["⚖️ Bias Audit Agent<br/><i>Screens every recommendation<br/>for bias</i>"]
-        HL["🧑 Human-in-the-Loop<br/><i>Final review on<br/>high-stakes calls</i>"]
-    end
+Multi-AI Router
+├── Task analysis
+├── Provider recommendation
+├── Transparent routing
+└── Configurable overrides
+```
 
-    SD --> CORE{{"⚡ Capability Twin<br/>Core Engine"}}
-    MI --> CORE
-    LP --> CORE
-    IM --> CORE
-    CORE --> BA
-    BA --> HL
-    HL --> OUT(["✅ Trusted Recommendation"])
+AI providers are abstracted behind an interface. All demo content uses realistic mock responses. Real API keys can be added via environment variables without code changes.
 
-    style CORE fill:#0B2E4F,stroke:#F2A93B,stroke-width:3px,color:#fff
-    style BA fill:#F2A93B,color:#0B2E4F
-    style HL fill:#1C7293,color:#fff
-    style OUT fill:#2E9E6B,color:#fff
+---
+
+## Data Flow
+
+```
+User Experience (Natural Language)
+         ↓
+Capability Translator
+         ↓
+Capability Twin (Graph)
+         ↓
+Transfer Analysis → Future Roles
+         ↓
+Opportunity Radar → Matched Opportunities
+         ↓
+JD Analysis → Resume Studio
+         ↓
+Practical Trial → Capability Verification
+         ↓
+Twin Update → New Capability Score
+         ↓
+Action Center → Employer Review
+         ↓
+Equity Nudge → Inclusive Decision
 ```
 
 ---
 
-## 🔁 Evidence-to-Transition Loop
+## Demo Flow (SAP Judges)
 
-We don't just *recommend* learning — we **verify** whether someone actually became capable.
+### Primary Candidate: Priya Sharma
+- 29 years old, Hubli, India
+- B.Sc. Computer Applications
+- 3-year career gap
+- Self-learning AI and data analysis
+- Target: AI Operations Engineer
 
-```mermaid
-flowchart LR
-    C1(["1️⃣ Current<br/>Capability"]) --> C2(["2️⃣ Transferability<br/>Score"])
-    C2 --> C3(["3️⃣ Missing<br/>Capability"])
-    C3 --> C4(["4️⃣ Minimum<br/>Learning"])
-    C4 --> C5(["5️⃣ Practical<br/>Work"])
-    C5 --> C6(["6️⃣ Verified<br/>Capability"])
-    C6 --> C7(["7️⃣ New Role /<br/>Opportunity"])
-    C7 -. "New evidence updates the Twin" .-> C1
+### The 13-Step Demo
 
-    style C1 fill:#1C7293,color:#fff
-    style C2 fill:#1C7293,color:#fff
-    style C3 fill:#1C7293,color:#fff
-    style C4 fill:#1C7293,color:#fff
-    style C5 fill:#1C7293,color:#fff
-    style C6 fill:#2E9E6B,color:#fff
-    style C7 fill:#F2A93B,color:#0B2E4F
+| # | Feature | WOW Moment |
+|---|---------|-----------|
+| 1 | Capability Translator | Natural experience → Enterprise capabilities |
+| 2 | Capability Twin | Living graph updates in real-time |
+| 3 | Career Path Intelligence | IT Support → AI Ops at 74% readiness |
+| 4 | Opportunity Radar | 94% match appears with animated ring |
+| 5 | Resume Studio | JD analysis → Tailored resume |
+| 6 | ATS Score | 81% → 94% animated |
+| 7 | Transition Plan | 3 caps, 1 project, 1 trial |
+| 8 | Practical Trial | Capability verified at 83% |
+| 9 | Email Intelligence | Interview email → Action created |
+| 10 | Action Center | Unified intelligent queue |
+| 11 | AI Workspace | Context already loaded |
+| 12 | Context Capsule | 42,800 → 2,100 tokens |
+| 13 | Equity Nudge | Employer sees capability, not gap |
+
+### Final Journey
+
 ```
-
-> 💬 *"Learning ≠ readiness. Performance on real, practical work is what unlocks the next opportunity."*
+INVISIBLE → TRANSLATED → UNDERSTOOD → DEVELOPED → VERIFIED → MATCHED → INCLUDED → EMPOWERED
+```
 
 ---
 
-## ⚖️ Bias Audit & Inclusion Layer
+## Tech Stack
 
-Fairness is architecture, not a feature.
-
-| ❌ We ignore | ✅ We weigh instead |
-|---|---|
-| College name | Demonstrated capability |
-| Location | Transferable capability |
-| Career gap | Verified evidence |
-| Previous job title alone | Growth potential |
-| Formal credential alone | Accessibility & flexibility needs |
-
-```mermaid
-flowchart LR
-    R(["Recommendation"]) --> BA(["Bias Audit"])
-    BA --> D{"Bias<br/>Detected?"}
-    D -- Yes --> HR(["🧑‍⚖️ Human Review"])
-    D -- No --> OUT(["✅ Approved"])
-
-    style D fill:#F2A93B,color:#0B2E4F
-    style HR fill:#0B2E4F,color:#fff
-    style OUT fill:#2E9E6B,color:#fff
-```
-
-The AI recommends. **Humans make the final high-stakes decisions — always.**
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16.3.1 (App Router) |
+| UI Library | React 19 |
+| Language | TypeScript 5 |
+| Styling | Tailwind CSS 4 |
+| Animations | Framer Motion 13 |
+| Charts | Recharts 3 |
+| Icons | Lucide React |
+| State | Zustand + React State |
+| Fonts | Inter (Google Fonts) |
+| Database | PostgreSQL + Prisma (architected) |
+| AI | Provider abstraction (mock + real) |
 
 ---
 
-## 📊 Product Walkthrough
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-### 👤 Employee Dashboard
-
-```
-MY CAPABILITY TWIN
-────────────────────
-Python              87%  ████████▋
-Backend             81%  ████████
-SQL                 82%  ████████
-Cloud                64%  ██████▍
-AI                    58%  █████▊
-
-FUTURE OPPORTUNITIES
-────────────────────
-AI Operations        74%
-AI Engineer            71%
-Cloud Engineer     68%
-
-RECOMMENDED GROWTH
-────────────────────
-▸ AI Evaluation
-▸ Agent Orchestration
-▸ Cloud AI Deployment
-```
-
-</td>
-<td width="50%" valign="top">
-
-### 🏢 Company Workforce Dashboard
-
-```
-COMPANY WORKFORCE — 10,000 EMPLOYEES
-────────────────────
-AI                    42%  ████▌
-Cloud                58%  ██████
-Data                  61%  ██████▎
-Cybersecurity     37%  ████
-
-WORKFORCE GAP
-────────────────────
-AI Engineering        1,240
-AI Security                680
-Cloud AI                     520
-
-"We don't need to hire 1,240 people
-— we can reskill from within."
-```
-
-</td>
-</tr>
-</table>
-
----
-
-## 🥊 Competitive Landscape
-
-| Platform | Their Strongest Point | Where Access-Hire Goes Further |
-|---|---|---|
-| **Eightfold AI** | Talent intelligence & trajectory prediction | Prove readiness through practical work, not just inference |
-| **Workday Skills Cloud** | Deep HCM & employee data integration | Add a transition-readiness layer on top of the skills graph |
-| **SAP Talent Intelligence Hub** | Native SAP HCM ecosystem | Complement SAP — extend skills into verified transitions |
-| **Beamery** | Workforce digital twin & task intelligence | Make it employee-transition-centric with proof, not just data |
-| **Gloat** | Opportunity marketplace matching | Be the readiness engine that runs *before* marketplace matching |
-| **Phenom** | Skills ontology & career pathing | Make transitions measurable and experimentally verified |
-
----
-
-## 🛠 Tech Stack
-
-<div align="center">
-
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
-![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
-![Netlify](https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)
-
-</div>
-
-> ℹ️ Update the badges above to match the exact stack used in this repository (backend framework, database, ML/AI libraries, etc.) as the implementation evolves.
-
----
-
-## 🚀 Getting Started
+## Installation
 
 ```bash
-# 1. Clone the repository
+# Clone the repository
 git clone https://github.com/Devengoyal885/Access-Hire.git
 cd Access-Hire
 
-# 2. Install dependencies
+# Install dependencies
 npm install
 
-# 3. Set up environment variables
+# Set up environment variables
 cp .env.example .env.local
-# Fill in the required API keys / config values
+# Edit .env.local with your API keys (optional — mocks work without)
 
-# 4. Run the development server
+# Start development server
 npm run dev
 ```
 
-The app should now be running at `http://localhost:3000` 🎉
+Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 🏆 Our Track Record
+## Demo Credentials
 
-StarCoders doesn't just pitch — we ship. Access-Hire is our latest build.
+No authentication required. The application runs in demo mode with pre-populated data for:
 
-| Project | Description | Link |
-|---|---|---|
-| **CodeXPath** | An AI-assisted platform for navigating and understanding code paths | [code-x-path.vercel.app](https://code-x-path.vercel.app/) |
-| **Opportunity Radar AI** | Discovers and surfaces relevant opportunities through an AI-driven dashboard | [opportunity-radar-ai.netlify.app](https://opportunity-radar-ai.netlify.app/dashboard) |
-| **Access-Hire** | Adaptive Capability Twin for an Inclusive Workforce *(this project)* | [github.com/Devengoyal885/Access-Hire](https://github.com/Devengoyal885/Access-Hire) |
+- **Individual:** Priya Sharma (IT Support → AI Operations transition)
+- **Enterprise:** Multi-department workforce with 10,000 employees
 
 ---
 
-## 👨‍💻 Team StarCoders
+## Environment Variables
 
-<div align="center">
+All environment variables are optional. The application uses realistic mock responses when API keys are not provided.
 
-| Avatar | Name | GitHub | LinkedIn |
-|:---:|---|:---:|:---:|
-| 🧑‍💻 | **Deven Goyal** | [@Devengoyal885](https://github.com/Devengoyal885) | [LinkedIn](https://www.linkedin.com/in/deven-goyal/) |
-| 🧑‍💻 | **Gurleen Kaur Bedi** | [@Gurleen12star](https://github.com/Gurleen12star) | [LinkedIn](https://www.linkedin.com/in/gurleen-kaur-bedi-296305314/) |
-| 🧑‍💻 | **Ridhi Bansal** | [@RidhiiBansal](https://github.com/RidhiiBansal) | [LinkedIn](https://www.linkedin.com/in/ridhi-bansal-42a700317/) |
-| 🧑‍💻 | **Bani Kaur** | [@banikaur22](https://github.com/banikaur22) | [LinkedIn](https://www.linkedin.com/in/bani-kaur-3b7283217/) |
-| 🧑‍💻 | **Aryan Yadav** | [@aryanrao](https://github.com/aryanrao) | [LinkedIn](https://www.linkedin.com/in/aryanyadav05/) |
-
-*Full-stack builders — from AI product design to shipped, live applications.*
-
-</div>
+| Variable | Purpose |
+|----------|---------|
+| `OPENAI_API_KEY` | Real ChatGPT responses |
+| `GOOGLE_GEMINI_API_KEY` | Real Gemini responses |
+| `ANTHROPIC_API_KEY` | Real Claude responses |
+| `DATABASE_URL` | PostgreSQL connection |
+| `NEXT_PUBLIC_DEMO_MODE` | Enable demo mode (default: true) |
 
 ---
 
-## 📄 License
+## Responsible AI
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+AccessHire is designed with responsible AI principles:
+
+- **Transparency:** AI recommendations are always labeled and explainable
+- **Human Control:** "AI recommends. Humans decide." — all critical decisions require human approval
+- **No Fabrication:** Resume Studio never invents experience, credentials, or skills
+- **Privacy:** Users control what context is shared with AI providers
+- **Bias Detection:** Active bias auditing with full audit trails
+- **Capability Focus:** Reduces credential and career gap bias by design
 
 ---
 
-<div align="center">
+## Limitations
 
-### 🌟 Let's build the fair future of work — together.
+- Demo mode uses mock AI responses (not real API calls)
+- Database integration is architected but not fully implemented
+- Email integration is simulated with mock data
+- Career predictions use probabilistic signals, not deterministic forecasts
 
-**Team StarCoders** · SAP Hackfest 2026 · Theme 2: Inclusive Workforce
+---
 
-⭐ If you like this project, consider giving it a star on [GitHub](https://github.com/Devengoyal885/Access-Hire)!
+## Future Roadmap
 
-</div>
+- [ ] Real AI provider integration (OpenAI, Gemini, Claude)
+- [ ] PostgreSQL database with Prisma ORM
+- [ ] OAuth authentication (Google, LinkedIn)
+- [ ] Real email integration (Gmail API, Outlook)
+- [ ] Mobile app (React Native)
+- [ ] Browser extension for opportunity capture
+- [ ] Employer API for ATS integration
+- [ ] Multi-language support (Hindi, Kannada, Tamil)
+- [ ] Voice input for Capability Translator
+
+---
+
+## Team
+
+**Star Coders** — SAP Hackfest 2026, Theme 2: Inclusive Workforce
+
+---
+
+## License
+
+MIT License — See [LICENSE](LICENSE) for details.
+
+---
+
+*AccessHire — Adaptive Capability Twin*  
+*"See Capability. Prove Potential. Enable Transition."*

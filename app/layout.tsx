@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Access-Hire | Adaptive Capability Twin — SAP Hackfest 2026",
-  description: "See Capability. Prove Potential. Enable Transition. Living, evidence-backed capability twins replacing proxy resume keywords.",
+  title: "AccessHire — Adaptive Capability Twin",
+  description: "See Capability. Prove Potential. Enable Transition. An AI Career & Workforce Operating System.",
+  keywords: ["capability twin", "AI career", "inclusive hiring", "workforce intelligence", "AccessHire"],
+  openGraph: {
+    title: "AccessHire — Adaptive Capability Twin",
+    description: "See Capability. Prove Potential. Enable Transition.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -14,13 +18,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-[#F4F7FA] text-[#16232E] selection:bg-[#F2A93B]/30 selection:text-[#0B2E4F]">
-        <Navbar />
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {children}
-        </main>
-        <Footer />
+    <html lang="en" className="h-full" data-theme="dark">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="h-full antialiased" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+        {children}
       </body>
     </html>
   );
