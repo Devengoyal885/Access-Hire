@@ -9,7 +9,7 @@ import {
   AlertCircle, Clock, Star, Activity, Award,
 } from 'lucide-react';
 import { mockTranslatedCapabilities, mockTransferRoles, getUserCapabilities, getUserProfile } from '@/data/mockData';
-import type { Capability } from '@/types';
+import type { Capability, MLCapability } from '@/types';
 import { sleep } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
 
@@ -222,16 +222,26 @@ function CapabilityDetail({ cap, onClose }: { cap: Capability; onClose: () => vo
 // ─── Capability Translator ────────────────────────────────────
 function CapabilityTranslator() {
   const [input, setInput] = useState('');
-  const [stage, setStage] = useState<'idle' | 'loading' | 'done'>('idle');
+  const [stage, setStage] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
   const [loadingMsg, setLoadingMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const [added, setAdded] = useState(false);
-  const [results, setResults] = useState<any[]>([]);
-  const [sourceTag, setSourceTag] = useState<'live' | 'fallback'>('live');
+  const [results, setResults] = useState<MLCapability[]>([]);
+  const [sourceTag, setSourceTag] = useState<'live' | 'error'>('live');
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
 
-  const cacheRef = useRef<Record<string, { capabilities: any[]; source: 'live' | 'fallback' }>>({});
+  const cacheRef = useRef<Record<string, { capabilities: MLCapability[] }>>({});
 
   const exampleLucknow = "I returned to work after a 3-year caregiving break in Lucknow where I managed full elder care logistics, medical scheduling, and patient budgets for my family. I also coordinated a local neighbourhood support network of 40 households, negotiated with medical vendors, and self-taught Python automation to track medical records.";
   const exampleDeven = "Computer Science Engineering student with 3 filed patents in wearable AI systems (App No. 202611068506) and smart hardware. Won 1st place at IIT Ropar AI for Social Good Hackathon and built Cogniflow AI dashboard and MailIQ email automation platform using Python, Next.js and REST APIs.";
+  const exampleFestival = "I organize my village's annual festival. Around 5,000 people attend. I manage the budget, vendors, volunteers and logistics.";
+
+  const loadingStages = [
+    'Analyzing experience...',
+    'Running AccessHire MPNet Skills Discovery Agent...',
+    'Matching against 469 capabilities...',
+    'Generating evidence & confidence scores...',
+  ];
 
   const translate = async () => {
     if (!input.trim()) return;
@@ -239,13 +249,25 @@ function CapabilityTranslator() {
     const trimmedInput = input.trim();
     if (cacheRef.current[trimmedInput]) {
       setResults(cacheRef.current[trimmedInput].capabilities);
-      setSourceTag(cacheRef.current[trimmedInput].source);
+      setSourceTag('live');
       setStage('done');
       return;
     }
 
     setStage('loading');
-    setLoadingMsg('Calling Gemini Flash Skills Discovery Agent...');
+    setErrorMsg('');
+    setAdded(false);
+    setExpandedIdx(null);
+
+    // Cycle through loading stages for visual feedback
+    let stageIdx = 0;
+    setLoadingMsg(loadingStages[0]);
+    const interval = setInterval(() => {
+      stageIdx++;
+      if (stageIdx < loadingStages.length) {
+        setLoadingMsg(loadingStages[stageIdx]);
+      }
+    }, 1200);
 
     try {
       const res = await fetch('/api/agents/translate-capability', {
@@ -254,40 +276,27 @@ function CapabilityTranslator() {
         body: JSON.stringify({ text: trimmedInput }),
       });
 
+      clearInterval(interval);
+
       const data = await res.json();
-      if (data && Array.isArray(data.capabilities)) {
-        setResults(data.capabilities);
-        setSourceTag(data.source === 'live' ? 'live' : 'fallback');
-        cacheRef.current[trimmedInput] = { capabilities: data.capabilities, source: data.source };
-      } else {
-        throw new Error('Invalid format');
+
+      if (!res.ok) {
+        throw new Error(data.error || `Request failed (${res.status})`);
       }
-    } catch (err) {
-      console.warn('Translation call failed, using client fallback', err);
-      const fallbackData = [
-        {
-          capability: 'Healthcare & Care Logistics',
-          confidence: 94,
-          evidence_snippet: input.includes('caregiving') ? 'managed full elder care logistics, medical scheduling' : 'managed volunteer and event operations',
-          category: 'Leadership & Operations',
-        },
-        {
-          capability: 'Community Network Coordination',
-          confidence: 88,
-          evidence_snippet: input.includes('neighbourhood') ? 'coordinated a local neighbourhood support network of 40 households' : 'coordinated project teams and supplier schedules',
-          category: 'Leadership & Operations',
-        },
-        {
-          capability: 'Self-Taught Python Automation',
-          confidence: 85,
-          evidence_snippet: input.includes('Python') ? 'self-taught Python automation to track medical records' : 'built automation platform using Python and REST APIs',
-          category: 'Technical',
-        },
-      ];
-      setResults(fallbackData);
-      setSourceTag('fallback');
-    } finally {
-      setStage('done');
+
+      if (data && Array.isArray(data.capabilities) && data.capabilities.length > 0) {
+        setResults(data.capabilities);
+        setSourceTag('live');
+        cacheRef.current[trimmedInput] = { capabilities: data.capabilities };
+        setStage('done');
+      } else {
+        throw new Error('No capabilities were inferred from your text. Try providing more detail.');
+      }
+    } catch (err: unknown) {
+      clearInterval(interval);
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setErrorMsg(message);
+      setStage('error');
     }
   };
 
@@ -296,10 +305,17 @@ function CapabilityTranslator() {
       <div className="card" style={{ padding: '1.25rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.875rem' }}>
           <div>
-            <div className="section-title">Capability Translator (Live Gemini Agent)</div>
-            <div className="section-subtitle">Describe non-traditional experience, caregiving, or technical projects. Gemini Flash extracts verifiable capabilities with grounded evidence quotes.</div>
+            <div className="section-title">Capability Translator (Live AccessHire ML Agent)</div>
+            <div className="section-subtitle">Describe non-traditional experience, caregiving, community work, or technical projects. AccessHire&apos;s ML model maps your experience to professional capabilities with confidence and evidence.</div>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setInput(exampleFestival)}
+              className="btn-ghost"
+              style={{ fontSize: '0.725rem', border: '1px solid var(--border)' }}
+            >
+              Festival Preset
+            </button>
             <button
               onClick={() => setInput(exampleLucknow)}
               className="btn-ghost"
@@ -332,12 +348,12 @@ function CapabilityTranslator() {
             className="btn-primary"
             style={{ width: 'fit-content' }}
           >
-            <Zap size={14} /> Translate via Gemini Flash
+            <Brain size={14} /> Discover Capabilities
           </button>
 
           {stage === 'done' && (
-            <span className={`badge ${sourceTag === 'live' ? 'badge-green' : 'badge-amber'}`}>
-              {sourceTag === 'live' ? '⚡ LIVE GEMINI 1.5 FLASH' : '🛡️ CACHED FALLBACK MODEL'}
+            <span className="badge badge-green">
+              🧠 LIVE ACCESSHIRE MPNet
             </span>
           )}
         </div>
@@ -354,6 +370,29 @@ function CapabilityTranslator() {
             <span style={{ fontSize: '0.8rem', color: 'var(--blue-primary)', fontWeight: 500 }}>{loadingMsg}</span>
           </motion.div>
         )}
+
+        {stage === 'error' && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              marginTop: '0.875rem', padding: '0.75rem 1rem',
+              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: 8, display: 'flex', alignItems: 'center', gap: '0.5rem',
+            }}
+          >
+            <AlertCircle size={15} style={{ color: 'var(--red)', flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--red)', marginBottom: '0.15rem' }}>
+                Skills Discovery service is temporarily unavailable
+              </div>
+              <div style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>{errorMsg}</div>
+            </div>
+            <button onClick={translate} className="btn-ghost" style={{ fontSize: '0.7rem', border: '1px solid var(--border)', flexShrink: 0 }}>
+              Retry
+            </button>
+          </motion.div>
+        )}
       </div>
 
       {stage === 'done' && results.length > 0 && (
@@ -361,7 +400,7 @@ function CapabilityTranslator() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <div>
               <div className="section-title">Derived Enterprise Capabilities</div>
-              <div className="section-subtitle">Grounded in verbatim evidence snippets from your text</div>
+              <div className="section-subtitle">Grounded in verbatim evidence snippets from your text · {results.length} capabilities inferred</div>
             </div>
             {!added ? (
               <button onClick={() => setAdded(true)} className="btn-primary" style={{ fontSize: '0.75rem' }}>
@@ -373,18 +412,18 @@ function CapabilityTranslator() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.875rem' }}>
-            {results.map((c: any, idx: number) => (
+            {results.map((c: MLCapability, idx: number) => (
               <div key={idx} style={{
                 padding: '0.875rem', background: 'var(--bg-elevated)', borderRadius: 10,
                 border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.5rem',
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <div style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'capitalize' }}>
                       {c.capability}
                     </div>
                     <span className="badge badge-blue" style={{ marginTop: '0.2rem', textTransform: 'capitalize' }}>
-                      {c.category || 'Capability'}
+                      {c.category || 'AI-Inferred Capability'}
                     </span>
                   </div>
                   <span style={{ fontSize: '1.1rem', fontWeight: 900, color: scoreColor(c.confidence) }}>
@@ -401,6 +440,68 @@ function CapabilityTranslator() {
                   }}>
                     &quot;{c.evidence_snippet}&quot;
                   </div>
+                )}
+
+                {/* ML Explainability Signals */}
+                {(c.semantic_score !== undefined || c.keyword_score !== undefined || c.evidence_score !== undefined) && (
+                  <>
+                    <button
+                      onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
+                      className="btn-ghost"
+                      style={{
+                        fontSize: '0.675rem', padding: '0.2rem 0.4rem', width: 'fit-content',
+                        border: '1px solid var(--border)', color: 'var(--text-muted)',
+                      }}
+                    >
+                      {expandedIdx === idx ? '▾ Hide ML signals' : '▸ Show ML signals'}
+                    </button>
+
+                    <AnimatePresence>
+                      {expandedIdx === idx && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          style={{ overflow: 'hidden' }}
+                        >
+                          <div style={{
+                            padding: '0.5rem 0.625rem', background: 'rgba(139,92,246,0.06)',
+                            border: '1px solid rgba(139,92,246,0.15)', borderRadius: 6,
+                            fontSize: '0.7rem', color: 'var(--text-secondary)',
+                            display: 'flex', flexDirection: 'column', gap: '0.3rem',
+                          }}>
+                            <div style={{ fontWeight: 700, color: 'var(--violet)', fontSize: '0.675rem', marginBottom: '0.1rem' }}>
+                              ML Evidence Breakdown
+                            </div>
+                            {c.semantic_score !== undefined && (
+                              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Semantic similarity</span>
+                                <span style={{ fontWeight: 700, color: 'var(--blue-primary)' }}>
+                                  {(c.semantic_score * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                            )}
+                            {c.keyword_score !== undefined && (
+                              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Keyword overlap</span>
+                                <span style={{ fontWeight: 700, color: 'var(--cyan)' }}>
+                                  {(c.keyword_score * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                            )}
+                            {c.evidence_score !== undefined && (
+                              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Evidence strength</span>
+                                <span style={{ fontWeight: 700, color: 'var(--green)' }}>
+                                  {(c.evidence_score * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </>
                 )}
               </div>
             ))}

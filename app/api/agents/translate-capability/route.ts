@@ -1,91 +1,99 @@
 import { NextResponse } from 'next/server';
-import { callGeminiFlash } from '@/lib/gemini';
+import type { MLCapability } from '@/types';
 
-export interface ExtractedCapability {
-  capability: string;
-  confidence: number;
-  evidence_snippet: string;
-  category: string;
-}
+// ─── AccessHire ML Skills Discovery Agent Proxy ─────────────
+// Proxies browser requests to the FastAPI + MPNet backend.
+// The backend URL is configured via ACCESSHIRE_ML_API_URL.
 
-interface TranslateResponse {
-  capabilities: ExtractedCapability[];
+interface MLApiResponse {
+  capabilities: MLCapability[];
 }
 
 export async function POST(req: Request) {
   try {
-    const { text } = await req.json();
+    const body = await req.json();
+    const { text } = body;
 
     if (!text || typeof text !== 'string' || !text.trim()) {
-      return NextResponse.json({ error: 'Input text is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Input text is required' },
+        { status: 400 },
+      );
     }
 
-    const systemInstruction = `You are AccessHire's Skills Discovery Agent (Adaptive Capability Twin).
-Your task is to convert non-traditional, informal, or formal experience descriptions into verifiable enterprise capabilities.
-
-Rules:
-1. Infer professional capabilities from ALL forms of experience (e.g. caregiving, community organizing, family budgeting, patient coordination, open-source work, self-taught coding).
-2. MUST ground every single capability in an EXACT quoted snippet from the user's input text (evidence_snippet). Do NOT invent snippets or return a capability without a supporting quoted snippet.
-3. Calibrate confidence score (0-100) based on specificity: concrete numbers, dates, tools, outcomes = 85-98%; general descriptions = 60-84%.
-4. Categorize each capability into one of: 'Technical', 'Leadership & Operations', 'Data & Analytics', 'Patient & Care Coordination', 'Communication & Problem Solving'.
-
-Return strictly valid JSON matching this schema:
-{
-  "capabilities": [
-    {
-      "capability": "Capability Name",
-      "confidence": 90,
-      "evidence_snippet": "Exact quote from text supporting this capability",
-      "category": "Technical"
-    }
-  ]
-}`;
-
-    const prompt = `Analyze the following experience text and extract verified capabilities with exact supporting evidence snippets:\n\n"""\n${text}\n"""`;
-
-    const result = await callGeminiFlash<TranslateResponse>(prompt, systemInstruction, 8000);
-
-    if (result.data && Array.isArray(result.data.capabilities) && result.data.capabilities.length > 0) {
-      return NextResponse.json({
-        capabilities: result.data.capabilities,
-        source: result.source,
-      });
+    const mlApiUrl = process.env.ACCESSHIRE_ML_API_URL;
+    if (!mlApiUrl) {
+      return NextResponse.json(
+        { error: 'ML API URL is not configured (ACCESSHIRE_ML_API_URL)' },
+        { status: 503 },
+      );
     }
 
-    // Fallback response if Gemini API fails or times out
-    const fallbackCapabilities: ExtractedCapability[] = [
-      {
-        capability: 'Community & Event Coordination',
-        confidence: 94,
-        evidence_snippet: text.slice(0, 80) || 'Organized community operations and vendor logistics',
-        category: 'Leadership & Operations',
+    const inferUrl = `${mlApiUrl}/infer-capabilities`;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+    const mlRes = await fetch(inferUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
       },
-      {
-        capability: 'Resource & Budget Management',
-        confidence: 88,
-        evidence_snippet: text.includes('budget') ? 'Managed budget and suppliers' : 'Coordinated logistics and supplier schedules',
-        category: 'Communication & Problem Solving',
-      },
-      {
-        capability: 'Conflict Resolution & Stakeholder Management',
-        confidence: 86,
-        evidence_snippet: text.includes('vendor') ? 'Negotiated with suppliers and resolved disputes' : 'Managed volunteer teams and vendor communication',
-        category: 'Leadership & Operations',
-      },
-      {
-        capability: 'Data & Process Organization',
-        confidence: 82,
-        evidence_snippet: text.slice(30, 90) || 'Maintained records and operational workflows',
-        category: 'Data & Analytics',
-      },
-    ];
+      body: JSON.stringify({ text: text.trim(), top_k: 8 }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!mlRes.ok) {
+      const errText = await mlRes.text().catch(() => 'Unknown error');
+      return NextResponse.json(
+        {
+          error: `ML API returned status ${mlRes.status}`,
+          detail: errText,
+        },
+        { status: 502 },
+      );
+    }
+
+    const mlData: MLApiResponse = await mlRes.json();
+
+    if (!mlData.capabilities || !Array.isArray(mlData.capabilities)) {
+      return NextResponse.json(
+        { error: 'Invalid response format from ML API' },
+        { status: 502 },
+      );
+    }
+
+    // Map capabilities — preserve all ML signals, add default category
+    const capabilities: MLCapability[] = mlData.capabilities.map((c) => ({
+      capability: c.capability,
+      confidence: Math.round(c.confidence * 10) / 10,
+      semantic_score: c.semantic_score,
+      keyword_score: c.keyword_score,
+      evidence_score: c.evidence_score,
+      evidence_snippet: c.evidence_snippet,
+      category: c.category || 'AI-Inferred Capability',
+    }));
 
     return NextResponse.json({
-      capabilities: fallbackCapabilities,
-      source: 'fallback',
-      reason: result.error || 'Gemini Flash API fallback used',
+      capabilities,
+      source: 'live',
+      model: 'AccessHire MPNet',
+      capability_count: capabilities.length,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
+  } catch (error: unknown) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      return NextResponse.json(
+        { error: 'ML API request timed out (15s). The backend may be starting up.' },
+        { status: 504 },
+      );
+    }
+
+    const message =
+      error instanceof Error ? error.message : 'Unknown server error';
+
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

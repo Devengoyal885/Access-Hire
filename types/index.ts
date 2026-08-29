@@ -42,6 +42,18 @@ export interface Capability {
   tags: string[];
 }
 
+// ─── ML Skills Discovery Agent Result ────────────────────────
+
+export interface MLCapability {
+  capability: string;
+  confidence: number;
+  semantic_score?: number;
+  keyword_score?: number;
+  evidence_score?: number;
+  evidence_snippet?: string;
+  category?: string;
+}
+
 export interface PatentItem {
   id: string;
   title: string;
