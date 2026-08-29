@@ -2,53 +2,8 @@
 
 /* ── Design Tokens ────────────────────────────────────────── */
 @layer base {
-  :root {
-    /* Core Palette — Dark */
-    --bg-base:        #0c0e14;
-    --bg-surface:     #111318;
-    --bg-elevated:    #181b22;
-    --bg-overlay:     #1e2229;
-    --bg-hover:       #22262f;
-
-    --border:         #2a2e38;
-    --border-subtle:  #1e2229;
-    --border-strong:  #3d4252;
-
-    --text-primary:   #f0f2f8;
-    --text-secondary: #9097a8;
-    --text-muted:     #5c6270;
-    --text-disabled:  #3a3e4a;
-
-    /* Brand Colors */
-    --blue-primary:   #4f8ef7;
-    --blue-bright:    #60a5fa;
-    --blue-dim:       #1d3a6b;
-    --blue-muted:     #1a2f5c;
-
-    --violet:         #8b5cf6;
-    --violet-dim:     #2d1f6b;
-
-    --cyan:           #06b6d4;
-    --cyan-dim:       #0c3a44;
-
-    --green:          #10b981;
-    --green-dim:      #0c3324;
-
-    --amber:          #f59e0b;
-    --amber-dim:      #3d2a00;
-
-    --red:            #ef4444;
-    --red-dim:        #3d1010;
-
-    /* Component Tokens */
-    --card-bg:        var(--bg-surface);
-    --card-border:    var(--border);
-    --sidebar-bg:     #0d0f16;
-    --sidebar-width:  240px;
-    --topbar-h:       56px;
-  }
-
-  [data-theme="light"] {
+  :root, [data-theme="light"] {
+    /* Core Palette — Light (Default) */
     --bg-base:        #f4f6fb;
     --bg-surface:     #ffffff;
     --bg-elevated:    #f8faff;
@@ -84,9 +39,54 @@
     --red:            #dc2626;
     --red-dim:        #fee2e2;
 
+    /* Component Tokens */
     --card-bg:        var(--bg-surface);
     --card-border:    var(--border);
     --sidebar-bg:     #f0f3fc;
+    --sidebar-width:  240px;
+    --topbar-h:       56px;
+  }
+
+  [data-theme="dark"] {
+    /* Core Palette — Dark */
+    --bg-base:        #0c0e14;
+    --bg-surface:     #111318;
+    --bg-elevated:    #181b22;
+    --bg-overlay:     #1e2229;
+    --bg-hover:       #22262f;
+
+    --border:         #2a2e38;
+    --border-subtle:  #1e2229;
+    --border-strong:  #3d4252;
+
+    --text-primary:   #f0f2f8;
+    --text-secondary: #9097a8;
+    --text-muted:     #5c6270;
+    --text-disabled:  #3a3e4a;
+
+    --blue-primary:   #4f8ef7;
+    --blue-bright:    #60a5fa;
+    --blue-dim:       #1d3a6b;
+    --blue-muted:     #1a2f5c;
+
+    --violet:         #8b5cf6;
+    --violet-dim:     #2d1f6b;
+
+    --cyan:           #06b6d4;
+    --cyan-dim:       #0c3a44;
+
+    --green:          #10b981;
+    --green-dim:      #0c3324;
+
+    --amber:          #f59e0b;
+    --amber-dim:      #3d2a00;
+
+    --red:            #ef4444;
+    --red-dim:        #3d1010;
+
+    --card-bg:        var(--bg-surface);
+    --card-border:    var(--border);
+    --sidebar-bg:     #0d0f16;
   }
 
   * {
