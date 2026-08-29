@@ -146,6 +146,7 @@ export default function ResumePage() {
   const [jd, setJd] = useState('');
   const [loadingMsg, setLoadingMsg] = useState('');
   const [copied, setCopied] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
   const [selectedOpp, setSelectedOpp] = useState('');
   const [activeTab, setActiveTab] = useState<'jd' | 'resume'>('jd');
 
@@ -155,7 +156,7 @@ export default function ResumePage() {
     const msgs = ['Reading job description...', 'Analyzing keyword requirements...', 'Matching against Capability Twin...', 'Calculating ATS fit...', 'Generating optimized resume...'];
     for (const m of msgs) {
       setLoadingMsg(m);
-      await sleep(600);
+      await sleep(500);
     }
     setStage('generated');
     setActiveTab('resume');
@@ -165,6 +166,20 @@ export default function ResumePage() {
     await navigator.clipboard.writeText(generatedResume);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleExport = () => {
+    const blob = new Blob([generatedResume], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'Priya_Sharma_AI_Operations_Resume.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    setDownloaded(true);
+    setTimeout(() => setDownloaded(false), 2500);
   };
 
   return (
@@ -255,7 +270,7 @@ export default function ResumePage() {
 
           {activeTab === 'resume' && stage === 'generated' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card" style={{ padding: '1.25rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <div>
                   <div className="section-title">AI Ops Internship Resume</div>
                   <div className="section-subtitle">Tailored for Infosys AI Labs · Verified capabilities only</div>
@@ -265,10 +280,10 @@ export default function ResumePage() {
                     {copied ? <CheckCircle2 size={13} style={{ color: 'var(--green)' }} /> : <Copy size={13} />}
                     {copied ? 'Copied!' : 'Copy'}
                   </button>
-                  <button className="btn-secondary" style={{ fontSize: '0.75rem' }}>
-                    <Download size={13} /> Export PDF
+                  <button onClick={handleExport} className="btn-secondary" style={{ fontSize: '0.75rem' }}>
+                    <Download size={13} /> {downloaded ? 'Downloaded!' : 'Export Resume'}
                   </button>
-                  <button className="btn-ghost" style={{ border: '1px solid var(--border)', fontSize: '0.75rem' }}>
+                  <button onClick={analyze} className="btn-ghost" style={{ border: '1px solid var(--border)', fontSize: '0.75rem' }}>
                     <RefreshCw size={13} /> Regenerate
                   </button>
                 </div>

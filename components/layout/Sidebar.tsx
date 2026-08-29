@@ -17,7 +17,10 @@ import {
   TrendingUp,
   ChevronRight,
   X,
+  LogOut,
+  LogIn,
 } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 interface NavSection {
   label: string;
@@ -29,7 +32,7 @@ interface NavSection {
   }[];
 }
 
-const navSections: NavSection[] = [
+const candidateSections: NavSection[] = [
   {
     label: 'CAREER OS',
     items: [
@@ -44,7 +47,26 @@ const navSections: NavSection[] = [
   {
     label: 'ENTERPRISE',
     items: [
-      { icon: <Building2 size={15} />, label: 'Workforce', href: '/workforce' },
+      { icon: <Building2 size={15} />, label: 'Workforce Console', href: '/workforce' },
+    ],
+  },
+];
+
+const employerSections: NavSection[] = [
+  {
+    label: 'WORKFORCE OS',
+    items: [
+      { icon: <Building2 size={15} />, label: 'Workforce Console', href: '/workforce' },
+      { icon: <Brain size={15} />, label: 'Internal Mobility', href: '/workforce?tab=mobility' },
+      { icon: <Sparkles size={15} />, label: 'Equity Nudge', href: '/workforce?tab=equity' },
+    ],
+  },
+  {
+    label: 'CANDIDATE VIEW',
+    items: [
+      { icon: <LayoutDashboard size={15} />, label: 'Command Center', href: '/dashboard' },
+      { icon: <Radar size={15} />, label: 'Opportunity Radar', href: '/opportunities' },
+      { icon: <Sparkles size={15} />, label: 'AI Workspace', href: '/workspace' },
     ],
   },
 ];
@@ -62,11 +84,14 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user, isAuthenticated, openAuthModal, logout } = useAuth();
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard' || pathname === '/';
     return pathname.startsWith(href);
   };
+
+  const currentSections = user?.role === 'employer' ? employerSections : candidateSections;
 
   return (
     <>
@@ -131,7 +156,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
         {/* Nav Sections */}
         <nav style={{ flex: 1, overflowY: 'auto', padding: '0.75rem 0.625rem' }}>
-          {navSections.map((section) => (
+          {currentSections.map((section) => (
             <div key={section.label} style={{ marginBottom: '1rem' }}>
               <div style={{
                 fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-muted)',
@@ -204,7 +229,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </div>
         </div>
 
-        {/* Bottom Nav */}
+        {/* Bottom Nav & Auth */}
         <div style={{ padding: '0.5rem 0.625rem', borderTop: '1px solid var(--border)' }}>
           {bottomItems.map((item) => (
             <Link
@@ -216,6 +241,26 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               <span>{item.label}</span>
             </Link>
           ))}
+
+          {isAuthenticated ? (
+            <button
+              onClick={logout}
+              className="nav-item"
+              style={{ width: '100%', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--red)', marginTop: '0.25rem' }}
+            >
+              <LogOut size={15} />
+              <span>Sign Out</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => openAuthModal('demo')}
+              className="nav-item"
+              style={{ width: '100%', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--blue-primary)', marginTop: '0.25rem' }}
+            >
+              <LogIn size={15} />
+              <span>Sign In</span>
+            </button>
+          )}
         </div>
       </aside>
     </>

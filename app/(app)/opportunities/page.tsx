@@ -2,15 +2,16 @@
 
 import { useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Radar, Filter, MapPin, Clock, Zap, X,
   CheckCircle2, ArrowRight, ExternalLink, Brain,
-  FileText, Target, Building2, Globe,
+  FileText, Target, Building2, Globe, Send, Upload,
 } from 'lucide-react';
-import { mockOpportunities } from '@/data/mockData';
+import { mockOpportunities, mockActions } from '@/data/mockData';
 import type { Opportunity, OpportunityType } from '@/types';
-import { formatDeadline } from '@/lib/utils';
+import { formatDeadline, sleep } from '@/lib/utils';
+import { useAuth } from '@/lib/auth-context';
 
 const typeLabels: Record<OpportunityType, string> = {
   job: 'Job', internship: 'Internship', 'paid-internship': 'Paid Intern',
@@ -118,7 +119,8 @@ function OpportunityCard({ opp, selected, onClick }: { opp: Opportunity; selecte
   );
 }
 
-function OpportunityDetail({ opp, onClose }: { opp: Opportunity; onClose: () => void }) {
+function OpportunityDetail({ opp, onClose, onApply }: { opp: Opportunity; onClose: () => void; onApply: (opp: Opportunity) => void }) {
+  const router = useRouter();
   const scores = [
     { label: 'Opportunity Fit', value: opp.matchScore, color: scoreColor(opp.matchScore) },
     { label: 'Capability Fit', value: opp.capabilityFit, color: scoreColor(opp.capabilityFit) },
@@ -220,14 +222,27 @@ function OpportunityDetail({ opp, onClose }: { opp: Opportunity; onClose: () => 
 
       {/* Actions */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <button className="btn-primary" style={{ justifyContent: 'center' }} id="apply-btn">
+        <button
+          className="btn-primary"
+          style={{ justifyContent: 'center' }}
+          id="apply-btn"
+          onClick={() => onApply(opp)}
+        >
           <ArrowRight size={14} /> Apply Now
         </button>
-        <button className="btn-secondary" style={{ justifyContent: 'center' }}>
+        <button
+          className="btn-secondary"
+          style={{ justifyContent: 'center' }}
+          onClick={() => router.push('/resume')}
+        >
           <FileText size={14} /> Optimize Resume
         </button>
         {opp.missingCapabilities.length > 0 && (
-          <button className="btn-secondary" style={{ justifyContent: 'center', color: 'var(--amber)', borderColor: 'rgba(245,158,11,0.3)' }}>
+          <button
+            className="btn-secondary"
+            style={{ justifyContent: 'center', color: 'var(--amber)', borderColor: 'rgba(245,158,11,0.3)' }}
+            onClick={() => router.push('/capability?tab=trial')}
+          >
             <Brain size={14} /> Close Capability Gap
           </button>
         )}
@@ -237,10 +252,15 @@ function OpportunityDetail({ opp, onClose }: { opp: Opportunity; onClose: () => 
 }
 
 function OpportunitiesContent() {
+  const { user } = useAuth();
   const [selectedType, setSelectedType] = useState<OpportunityType | 'all'>('all');
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [selectedOpp, setSelectedOpp] = useState<Opportunity | null>(mockOpportunities[0]);
   const [sortBy, setSortBy] = useState<'match' | 'deadline'>('match');
+  const [applyingOpp, setApplyingOpp] = useState<Opportunity | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [appliedMsg, setAppliedMsg] = useState('');
+  const [customPitch, setCustomPitch] = useState('');
 
   const allTypes: (OpportunityType | 'all')[] = ['all', 'job', 'paid-internship', 'internship', 'hackathon', 'fellowship', 'scholarship', 'research'];
 
@@ -249,12 +269,46 @@ function OpportunitiesContent() {
     .filter(o => !remoteOnly || o.remote)
     .sort((a, b) => sortBy === 'match' ? b.matchScore - a.matchScore : new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
 
+  const handleConfirmApply = async () => {
+    if (!applyingOpp) return;
+    setSubmitting(true);
+    await sleep(1000);
+    setSubmitting(false);
+    setAppliedMsg(`Application for ${applyingOpp.title} at ${applyingOpp.company} submitted! Capability Twin attached.`);
+    setApplyingOpp(null);
+    setCustomPitch('');
+    setTimeout(() => setAppliedMsg(''), 4000);
+  };
+
   return (
     <div>
       <div className="page-header">
         <h1 className="page-title">Opportunity Radar</h1>
         <p className="page-subtitle">Opportunities matched to your capabilities, goals and trajectory — not just keywords.</p>
       </div>
+
+      {appliedMsg && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            padding: '0.75rem 1rem',
+            marginBottom: '1.25rem',
+            borderRadius: 8,
+            background: 'rgba(16,185,129,0.1)',
+            border: '1px solid rgba(16,185,129,0.3)',
+            color: 'var(--green)',
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+        >
+          <CheckCircle2 size={16} />
+          {appliedMsg}
+        </motion.div>
+      )}
 
       {/* Stats */}
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem' }}>
@@ -342,10 +396,105 @@ function OpportunitiesContent() {
         {/* Detail */}
         <AnimatePresence>
           {selectedOpp && (
-            <OpportunityDetail opp={selectedOpp} onClose={() => setSelectedOpp(null)} />
+            <OpportunityDetail
+              opp={selectedOpp}
+              onClose={() => setSelectedOpp(null)}
+              onApply={(o) => setApplyingOpp(o)}
+            />
           )}
         </AnimatePresence>
       </div>
+
+      {/* Application Modal */}
+      <AnimatePresence>
+        {applyingOpp && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 1000,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
+              padding: '1rem',
+            }}
+            onClick={() => setApplyingOpp(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              style={{
+                width: '100%', maxWidth: 480,
+                background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)',
+                borderRadius: 16, padding: '1.5rem', boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>Apply: {applyingOpp.title}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{applyingOpp.company} · {applyingOpp.compensation || 'Standard package'}</div>
+                </div>
+                <button onClick={() => setApplyingOpp(null)} className="btn-ghost" style={{ padding: '0.3rem' }}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div style={{
+                padding: '0.75rem', borderRadius: 8, background: 'rgba(79,142,247,0.06)',
+                border: '1px solid rgba(79,142,247,0.2)', marginBottom: '1rem',
+                fontSize: '0.775rem', color: 'var(--text-secondary)',
+              }}>
+                <div style={{ fontWeight: 700, color: 'var(--blue-primary)', marginBottom: '0.2rem' }}>
+                  Capability Twin Attached (Score: {applyingOpp.matchScore}%)
+                </div>
+                Your verified evidence (GitHub, practical trials, project work) will be presented to {applyingOpp.company}.
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.375rem', display: 'block' }}>
+                  Applicant Persona
+                </label>
+                <div style={{ padding: '0.5rem 0.75rem', background: 'var(--bg-surface)', borderRadius: 7, border: '1px solid var(--border)', fontSize: '0.8rem' }}>
+                  <strong>{user?.name || 'Priya Sharma'}</strong> ({user?.email || 'priya@accesshire.ai'})
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.375rem', display: 'block' }}>
+                  Add Capability Pitch / Statement (Optional)
+                </label>
+                <textarea
+                  value={customPitch}
+                  onChange={e => setCustomPitch(e.target.value)}
+                  placeholder="Tell the recruiter why your transferable capabilities make you a strong fit..."
+                  className="input"
+                  style={{ minHeight: 90, fontSize: '0.8rem', resize: 'vertical' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button
+                  className="btn-ghost"
+                  style={{ flex: 1, border: '1px solid var(--border)' }}
+                  onClick={() => setApplyingOpp(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn-primary"
+                  style={{ flex: 2, justifyContent: 'center' }}
+                  onClick={handleConfirmApply}
+                  disabled={submitting}
+                >
+                  {submitting ? 'Submitting Application...' : 'Confirm & Submit Application'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

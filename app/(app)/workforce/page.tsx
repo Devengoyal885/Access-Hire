@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2, Users, TrendingUp, Shield, AlertTriangle,
   CheckCircle2, ArrowRight, ChevronRight, Brain,
-  FileText, Zap, Eye, Target, Accessibility,
+  FileText, Zap, Eye, Target, Accessibility, X, Check,
 } from 'lucide-react';
 import { mockWorkforceDepartments, mockEquityCandidates } from '@/data/mockData';
 import { sleep } from '@/lib/utils';
@@ -29,9 +29,10 @@ function ScoreCell({ value }: { value: number }) {
 function EquityNudge() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [generated, setGenerated] = useState<string | null>(null);
+  const [selectedCandidate, setSelectedCandidate] = useState<typeof mockEquityCandidates[0] | null>(null);
 
   const generateQuestions = async (id: string) => {
-    await sleep(800);
+    await sleep(600);
     setGenerated(id);
   };
 
@@ -127,7 +128,11 @@ function EquityNudge() {
                     </div>
                   </motion.div>
                 )}
-                <button className="btn-ghost" style={{ fontSize: '0.775rem', border: '1px solid var(--border)' }}>
+                <button
+                  className="btn-ghost"
+                  style={{ fontSize: '0.775rem', border: '1px solid var(--border)' }}
+                  onClick={() => setSelectedCandidate(candidate)}
+                >
                   <Eye size={13} /> View Full Profile
                 </button>
               </div>
@@ -135,6 +140,65 @@ function EquityNudge() {
           </div>
         </div>
       ))}
+
+      {/* Candidate Profile Modal */}
+      <AnimatePresence>
+        {selectedCandidate && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 1000,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
+              padding: '1rem',
+            }}
+            onClick={() => setSelectedCandidate(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              style={{
+                width: '100%', maxWidth: 440,
+                background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)',
+                borderRadius: 16, padding: '1.5rem', boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>{selectedCandidate.name}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{selectedCandidate.location} · {selectedCandidate.credentials}</div>
+                </div>
+                <button onClick={() => setSelectedCandidate(null)} className="btn-ghost" style={{ padding: '0.3rem' }}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1rem' }}>
+                <div style={{ padding: '0.75rem', background: 'rgba(16,185,129,0.1)', borderRadius: 8, textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--green)' }}>{selectedCandidate.capabilityFit}%</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Capability Fit</div>
+                </div>
+                <div style={{ padding: '0.75rem', background: 'rgba(79,142,247,0.1)', borderRadius: 8, textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--blue-primary)' }}>{selectedCandidate.evidenceConfidence}%</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Evidence Confidence</div>
+                </div>
+              </div>
+
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+                Candidate verified via AccessHire Adaptive Capability Twin. Demonstrated high performance in practical problem solving and automated workflow execution.
+              </div>
+
+              <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setSelectedCandidate(null)}>
+                Close Profile
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -325,6 +389,8 @@ function BiasAudit() {
 
 export default function WorkforcePage() {
   const [activeTab, setActiveTab] = useState('overview');
+  const [selectedTransition, setSelectedTransition] = useState<{ dept: string; from: string; to: string; readiness: number; employees: number } | null>(null);
+  const [planCreatedMsg, setPlanCreatedMsg] = useState('');
 
   const totalEmployees = mockWorkforceDepartments.reduce((s, d) => s + d.headcount, 0);
   const avgAI = Math.round(mockWorkforceDepartments.reduce((s, d) => s + (d.capabilities['AI / ML'] || 0), 0) / mockWorkforceDepartments.length);
@@ -340,12 +406,42 @@ export default function WorkforcePage() {
     { id: 'bias', label: 'Bias Audit' },
   ];
 
+  const handleCreateReskillingPlan = () => {
+    if (!selectedTransition) return;
+    setPlanCreatedMsg(`Reskilling Plan created for ${selectedTransition.employees} employees in ${selectedTransition.from} → ${selectedTransition.to}!`);
+    setSelectedTransition(null);
+    setTimeout(() => setPlanCreatedMsg(''), 4000);
+  };
+
   return (
     <div>
       <div className="page-header">
         <h1 className="page-title">Workforce Capability Console</h1>
         <p className="page-subtitle">See what your workforce can do today — and what it can become tomorrow.</p>
       </div>
+
+      {planCreatedMsg && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            padding: '0.75rem 1rem',
+            marginBottom: '1.25rem',
+            borderRadius: 8,
+            background: 'rgba(16,185,129,0.1)',
+            border: '1px solid rgba(16,185,129,0.3)',
+            color: 'var(--green)',
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+        >
+          <CheckCircle2 size={16} />
+          {planCreatedMsg}
+        </motion.div>
+      )}
 
       {/* Metrics */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
@@ -466,7 +562,11 @@ export default function WorkforcePage() {
                       </div>
                       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Readiness</div>
                     </div>
-                    <button className="btn-secondary" style={{ fontSize: '0.75rem', flexShrink: 0 }}>
+                    <button
+                      className="btn-secondary"
+                      style={{ fontSize: '0.75rem', flexShrink: 0 }}
+                      onClick={() => setSelectedTransition(t)}
+                    >
                       Build Reskilling Plan
                     </button>
                   </motion.div>
@@ -513,6 +613,89 @@ export default function WorkforcePage() {
               <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Bias detection, audit trails, and governance for fair hiring decisions.</div>
               <BiasAudit />
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Reskilling Plan Modal */}
+      <AnimatePresence>
+        {selectedTransition && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 1000,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
+              padding: '1rem',
+            }}
+            onClick={() => setSelectedTransition(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              style={{
+                width: '100%', maxWidth: 480,
+                background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)',
+                borderRadius: 16, padding: '1.5rem', boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>
+                    Reskilling Plan: {selectedTransition.from} → {selectedTransition.to}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Department: {selectedTransition.dept} · {selectedTransition.employees} employees
+                  </div>
+                </div>
+                <button onClick={() => setSelectedTransition(null)} className="btn-ghost" style={{ padding: '0.3rem' }}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div style={{
+                padding: '0.875rem', borderRadius: 8, background: 'rgba(79,142,247,0.06)',
+                border: '1px solid rgba(79,142,247,0.2)', marginBottom: '1rem',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--blue-primary)' }}>Target Readiness</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--green)' }}>{selectedTransition.readiness}% → 92%</span>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  Estimated transition timeline: <strong>6 weeks</strong> (10 hrs/week practical work)
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>
+                  TARGET COMPETENCY MODULES
+                </div>
+                {[
+                  'Module 1: Practical AI Evaluation & Quality Assurance (15 hrs)',
+                  'Module 2: Cloud Infrastructure & Container Deployment (20 hrs)',
+                  'Module 3: Hands-on MLOps Practical Trial (15 hrs)',
+                  'Module 4: Enterprise Safety & Bias Mitigation (10 hrs)',
+                ].map((m, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.775rem', color: 'var(--text-secondary)', marginBottom: '0.375rem' }}>
+                    <CheckCircle2 size={13} style={{ color: 'var(--green)', flexShrink: 0 }} />
+                    {m}
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button className="btn-ghost" style={{ flex: 1, border: '1px solid var(--border)' }} onClick={() => setSelectedTransition(null)}>
+                  Cancel
+                </button>
+                <button className="btn-primary" style={{ flex: 2, justifyContent: 'center' }} onClick={handleCreateReskillingPlan}>
+                  Deploy Reskilling Plan
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

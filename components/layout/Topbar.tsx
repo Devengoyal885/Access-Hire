@@ -4,12 +4,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Bell, User, Menu, Command,
-  Brain, CheckSquare, Zap,
+  Brain, CheckSquare, Zap, LogOut, RefreshCw, LogIn, ChevronDown, Check,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import ThemeSwitcher from './ThemeSwitcher';
 import CommandPalette from './CommandPalette';
 import { mockNotifications } from '@/data/mockData';
+import { useAuth } from '@/lib/auth-context';
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -18,7 +20,25 @@ interface TopbarProps {
 export default function Topbar({ onMenuClick }: TopbarProps) {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const unread = mockNotifications.filter(n => !n.read).length;
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState(mockNotifications);
+  const { user, isAuthenticated, logout, openAuthModal, loginAsCandidate, loginAsEmployer } = useAuth();
+  const router = useRouter();
+
+  const unread = notifications.filter(n => !n.read).length;
+
+  const markAllRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  const markSingleRead = (id: string, type: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    setNotifOpen(false);
+    if (type === 'opportunity') router.push('/opportunities');
+    else if (type === 'capability' || type === 'verification') router.push('/capability');
+    else if (type === 'email') router.push('/actions');
+    else if (type === 'resume') router.push('/resume');
+  };
 
   const openCmd = useCallback(() => setCmdOpen(true), []);
 
@@ -94,7 +114,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
           {/* Notifications */}
           <div style={{ position: 'relative' }}>
             <button
-              onClick={() => setNotifOpen(o => !o)}
+              onClick={() => { setNotifOpen(o => !o); setUserMenuOpen(false); }}
               className="btn-ghost"
               style={{ padding: '0.4rem', borderRadius: 7, border: '1px solid var(--border)', position: 'relative' }}
               aria-label="Notifications"
@@ -130,27 +150,41 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>Notifications</span>
-                    <span style={{
-                      fontSize: '0.65rem', fontWeight: 700,
-                      background: 'rgba(239,68,68,0.15)', color: 'var(--red)',
-                      padding: '0.1rem 0.4rem', borderRadius: 999,
-                    }}>{unread} new</span>
+                    {unread > 0 ? (
+                      <button
+                        onClick={markAllRead}
+                        style={{
+                          fontSize: '0.65rem', fontWeight: 700,
+                          background: 'rgba(79,142,247,0.15)', color: 'var(--blue-primary)',
+                          border: 'none', padding: '0.15rem 0.4rem', borderRadius: 999,
+                          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.2rem',
+                        }}
+                      >
+                        <Check size={10} /> Mark read ({unread})
+                      </button>
+                    ) : (
+                      <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>All caught up</span>
+                    )}
                   </div>
                   <div style={{ maxHeight: 300, overflowY: 'auto' }}>
-                    {mockNotifications.map(n => (
-                      <div key={n.id} style={{
-                        display: 'flex', gap: '0.625rem', padding: '0.625rem 0.875rem',
-                        borderBottom: '1px solid var(--border-subtle)',
-                        background: n.read ? 'transparent' : 'rgba(79,142,247,0.04)',
-                        cursor: 'pointer',
-                      }}>
+                    {notifications.map(n => (
+                      <div
+                        key={n.id}
+                        onClick={() => markSingleRead(n.id, n.type)}
+                        style={{
+                          display: 'flex', gap: '0.625rem', padding: '0.625rem 0.875rem',
+                          borderBottom: '1px solid var(--border-subtle)',
+                          background: n.read ? 'transparent' : 'rgba(79,142,247,0.04)',
+                          cursor: 'pointer',
+                        }}
+                      >
                         <div style={{
                           width: 28, height: 28, borderRadius: 7, flexShrink: 0,
                           background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>
                           {notifIcon[n.type] || <Bell size={13} />}
                         </div>
-                        <div>
+                        <div style={{ flex: 1 }}>
                           <div style={{ fontSize: '0.775rem', fontWeight: 600, color: 'var(--text-primary)' }}>{n.title}</div>
                           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.1rem', lineHeight: 1.4 }}>{n.message}</div>
                         </div>
@@ -165,35 +199,136 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
             </AnimatePresence>
           </div>
 
-          {/* Profile */}
-          <Link
-            href="/profile"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.3rem 0.625rem', borderRadius: 7,
-              border: '1px solid var(--border)', textDecoration: 'none',
-              transition: 'all 0.12s',
-            }}
-            aria-label="Profile"
-            id="profile-btn"
-          >
-            <div style={{
-              width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
-              background: 'linear-gradient(135deg, #4f8ef7, #8b5cf6)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '0.65rem', fontWeight: 800, color: 'white',
-            }}>
-              P
+          {/* User Account / Profile Menu */}
+          {isAuthenticated && user ? (
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => { setUserMenuOpen(o => !o); setNotifOpen(false); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  padding: '0.3rem 0.625rem', borderRadius: 7,
+                  border: '1px solid var(--border)', background: 'var(--bg-elevated)',
+                  cursor: 'pointer', transition: 'all 0.12s', color: 'inherit',
+                  fontFamily: 'inherit',
+                }}
+                aria-label="User Account Menu"
+                id="profile-btn"
+              >
+                <div style={{
+                  width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+                  background: user.role === 'employer'
+                    ? 'linear-gradient(135deg, #8b5cf6, #06b6d4)'
+                    : 'linear-gradient(135deg, #4f8ef7, #8b5cf6)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.65rem', fontWeight: 800, color: 'white',
+                }}>
+                  {user.name ? user.name[0] : 'U'}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                    {user.name}
+                  </span>
+                  <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', lineHeight: 1.2 }}>
+                    {user.title || (user.role === 'employer' ? 'Workforce Recruiter' : 'Candidate')}
+                  </span>
+                </div>
+                <ChevronDown size={12} style={{ color: 'var(--text-muted)' }} />
+              </button>
+
+              <AnimatePresence>
+                {userMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 4, scale: 0.96 }}
+                    transition={{ duration: 0.12 }}
+                    style={{
+                      position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem',
+                      width: 240, background: 'var(--bg-elevated)',
+                      border: '1px solid var(--border-strong)',
+                      borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                      zIndex: 50, overflow: 'hidden', padding: '0.375rem',
+                    }}
+                  >
+                    <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid var(--border)', marginBottom: '0.375rem' }}>
+                      <div style={{ fontSize: '0.775rem', fontWeight: 700, color: 'var(--text-primary)' }}>{user.name}</div>
+                      <div style={{ fontSize: '0.675rem', color: 'var(--text-muted)' }}>{user.email}</div>
+                      <span className={`badge ${user.role === 'employer' ? 'badge-violet' : 'badge-blue'}`} style={{ marginTop: '0.375rem', display: 'inline-block' }}>
+                        {user.role === 'employer' ? 'Enterprise Console' : 'Candidate OS'}
+                      </span>
+                    </div>
+
+                    <Link
+                      href="/profile"
+                      onClick={() => setUserMenuOpen(false)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        padding: '0.45rem 0.625rem', borderRadius: 6,
+                        fontSize: '0.775rem', color: 'var(--text-secondary)',
+                        textDecoration: 'none', transition: 'all 0.12s',
+                      }}
+                      className="nav-item-sub"
+                    >
+                      <User size={13} /> View Profile
+                    </Link>
+
+                    <button
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        if (user.role === 'candidate') loginAsEmployer();
+                        else loginAsCandidate();
+                      }}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        padding: '0.45rem 0.625rem', borderRadius: 6,
+                        fontSize: '0.775rem', color: 'var(--text-secondary)',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        textAlign: 'left',
+                      }}
+                    >
+                      <RefreshCw size={13} /> Switch Persona ({user.role === 'candidate' ? 'Recruiter' : 'Candidate'})
+                    </button>
+
+                    <button
+                      onClick={() => { setUserMenuOpen(false); openAuthModal('demo'); }}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        padding: '0.45rem 0.625rem', borderRadius: 6,
+                        fontSize: '0.775rem', color: 'var(--text-secondary)',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        textAlign: 'left',
+                      }}
+                    >
+                      <LogIn size={13} /> Manage Auth / Accounts
+                    </button>
+
+                    <div style={{ borderTop: '1px solid var(--border)', margin: '0.375rem 0' }} />
+
+                    <button
+                      onClick={() => { setUserMenuOpen(false); logout(); }}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        padding: '0.45rem 0.625rem', borderRadius: 6,
+                        fontSize: '0.775rem', color: 'var(--red)',
+                        background: 'rgba(239,68,68,0.06)', border: 'none', cursor: 'pointer',
+                        textAlign: 'left', fontWeight: 600,
+                      }}
+                    >
+                      <LogOut size={13} /> Sign Out
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-                Priya Sharma
-              </span>
-              <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', lineHeight: 1.2 }}>
-                AI Ops Candidate
-              </span>
-            </div>
-          </Link>
+          ) : (
+            <button
+              onClick={() => openAuthModal('demo')}
+              className="btn-primary"
+              style={{ fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}
+            >
+              <LogIn size={13} /> Sign In
+            </button>
+          )}
         </div>
       </header>
 

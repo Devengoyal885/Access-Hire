@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   TrendingUp, Brain, Radar, Zap, CheckSquare,
   ArrowRight, Clock, AlertCircle, Sparkles, Target,
-  ChevronRight, Award,
+  ChevronRight, Award, X, CheckCircle2, FileText,
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -14,6 +15,8 @@ import {
 } from 'recharts';
 import { mockMomentumData, mockActions, mockOpportunities, mockCapabilities } from '@/data/mockData';
 import { formatDeadline } from '@/lib/utils';
+import type { Action } from '@/types';
+import { useAuth } from '@/lib/auth-context';
 
 function AnimatedNumber({ target, suffix = '', prefix = '', duration = 1200 }: { target: number; suffix?: string; prefix?: string; duration?: number }) {
   const [current, setCurrent] = useState(0);
@@ -54,8 +57,35 @@ const actionIcon: Record<string, React.ReactNode> = {
 };
 
 export default function DashboardPage() {
-  const topActions = mockActions.slice(0, 4);
+  const { user } = useAuth();
+  const router = useRouter();
+  const [actionsList, setActionsList] = useState(mockActions);
+  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
+  const [actionDoneMsg, setActionDoneMsg] = useState('');
+
+  const topActions = actionsList.filter(a => !a.completed).slice(0, 4);
   const topOpps = mockOpportunities.slice(0, 3);
+
+  const handleExecuteAction = (action: Action) => {
+    if (action.category === 'application') {
+      router.push('/opportunities');
+    } else if (action.category === 'assessment') {
+      router.push('/capability?tab=trial');
+    } else if (action.category === 'interview') {
+      router.push('/workspace');
+    } else if (action.category === 'learning') {
+      router.push('/capability');
+    } else {
+      setSelectedAction(action);
+    }
+  };
+
+  const handleMarkComplete = (actionId: string) => {
+    setActionsList(prev => prev.map(a => a.id === actionId ? { ...a, completed: true } : a));
+    setSelectedAction(null);
+    setActionDoneMsg('Action completed! Capability momentum updated.');
+    setTimeout(() => setActionDoneMsg(''), 3000);
+  };
 
   const metrics = [
     {
@@ -101,7 +131,7 @@ export default function DashboardPage() {
       sub: 'In progress',
       icon: <Zap size={16} />,
       color: 'var(--amber)',
-      href: '/capability',
+      href: '/capability?tab=transfer',
     },
   ];
 
@@ -110,10 +140,33 @@ export default function DashboardPage() {
       {/* Page Header */}
       <div className="page-header">
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="page-title">Good evening, Priya. 👋</h1>
+          <h1 className="page-title">Good day, {user?.name || 'Priya'}. 👋</h1>
           <p className="page-subtitle">Your career is moving forward. Here&apos;s what needs your attention.</p>
         </motion.div>
       </div>
+
+      {actionDoneMsg && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            padding: '0.75rem 1rem',
+            marginBottom: '1rem',
+            borderRadius: 8,
+            background: 'rgba(16,185,129,0.1)',
+            border: '1px solid rgba(16,185,129,0.3)',
+            color: 'var(--green)',
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+        >
+          <CheckCircle2 size={16} />
+          {actionDoneMsg}
+        </motion.div>
+      )}
 
       {/* Metric Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
@@ -232,7 +285,6 @@ export default function DashboardPage() {
                     padding: '0.75rem 0.875rem', borderRadius: 8,
                     background: actionBg[action.priority],
                     border: `1px solid ${actionColors[action.priority]}22`,
-                    cursor: 'pointer',
                   }}
                 >
                   <div style={{
@@ -275,6 +327,7 @@ export default function DashboardPage() {
                     <button
                       className="btn-primary"
                       style={{ fontSize: '0.7rem', padding: '0.25rem 0.625rem', marginTop: '0.1rem' }}
+                      onClick={() => handleExecuteAction(action)}
                     >
                       Act <ArrowRight size={11} />
                     </button>
@@ -420,6 +473,73 @@ export default function DashboardPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Action Execution Modal */}
+      <AnimatePresence>
+        {selectedAction && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 100,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+              padding: '1rem',
+            }}
+            onClick={() => setSelectedAction(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              style={{
+                width: '100%', maxWidth: 440,
+                background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)',
+                borderRadius: 14, padding: '1.5rem', boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <div>
+                  <div style={{ fontSize: '1rem', fontWeight: 800 }}>{selectedAction.title}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
+                    {selectedAction.category} · Priority: {selectedAction.priority}
+                  </div>
+                </div>
+                <button onClick={() => setSelectedAction(null)} className="btn-ghost" style={{ padding: '0.3rem' }}>
+                  <X size={15} />
+                </button>
+              </div>
+
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+                {selectedAction.description}
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button
+                  className="btn-primary"
+                  style={{ flex: 1, justifyContent: 'center' }}
+                  onClick={() => handleMarkComplete(selectedAction.id)}
+                >
+                  <CheckCircle2 size={15} /> Mark Complete
+                </button>
+                <button
+                  className="btn-secondary"
+                  style={{ flex: 1, justifyContent: 'center' }}
+                  onClick={() => {
+                    const id = selectedAction.id;
+                    setSelectedAction(null);
+                    handleExecuteAction(selectedAction);
+                  }}
+                >
+                  Go to Action Module
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

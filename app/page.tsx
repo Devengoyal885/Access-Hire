@@ -6,8 +6,9 @@ import Link from 'next/link';
 import {
   ArrowRight, Sparkles, Brain, Zap, CheckCircle2,
   Target, Shield, TrendingUp, Users, Building2,
-  ChevronRight, Star,
+  ChevronRight, Star, LogIn,
 } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 // Animated capability network nodes
 const nodes = [
@@ -171,6 +172,7 @@ function CapabilityNetwork() {
 
 export default function LandingPage() {
   const [activeStep, setActiveStep] = useState(0);
+  const { openAuthModal } = useAuth();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -222,6 +224,15 @@ export default function LandingPage() {
             <Star size={11} fill="currentColor" />
             SAP Hackfest 2026
           </span>
+
+          <button
+            onClick={() => openAuthModal('demo')}
+            className="btn-ghost"
+            style={{ fontSize: '0.8rem', border: '1px solid var(--border)' }}
+          >
+            <LogIn size={13} /> Demo Login / Auth
+          </button>
+
           <Link href="/dashboard" className="btn-primary" id="enter-app-btn">
             Enter AccessHire <ArrowRight size={14} />
           </Link>
@@ -277,9 +288,13 @@ export default function LandingPage() {
               <Link href="/dashboard" className="btn-primary" style={{ fontSize: '0.875rem', padding: '0.625rem 1.25rem' }} id="cta-enter">
                 Enter AccessHire <ArrowRight size={16} />
               </Link>
-              <Link href="/capability" className="btn-secondary" style={{ fontSize: '0.875rem', padding: '0.625rem 1.25rem' }}>
-                See Capability Twin
-              </Link>
+              <button
+                onClick={() => openAuthModal('demo')}
+                className="btn-secondary"
+                style={{ fontSize: '0.875rem', padding: '0.625rem 1.25rem' }}
+              >
+                Sign In / Select Persona
+              </button>
             </div>
 
             {/* Trust signals */}

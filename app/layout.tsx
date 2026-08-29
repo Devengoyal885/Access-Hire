@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ClientProviders from "@/components/auth/ClientProviders";
 
 export const metadata: Metadata = {
   title: "AccessHire — Adaptive Capability Twin",
@@ -28,7 +29,9 @@ export default function RootLayout({
         />
       </head>
       <body className="h-full antialiased" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
-        {children}
+        <ClientProviders>
+          {children}
+        </ClientProviders>
       </body>
     </html>
   );
