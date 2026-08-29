@@ -9,13 +9,15 @@ import type {
   EquityCandidate,
   MomentumDataPoint,
   Notification,
+  PatentItem,
 } from '@/types';
 
-// ─── Primary Candidate ────────────────────────────────────────
+// ─── Primary Candidate (Priya Sharma) ─────────────────────────
 
 export const mockUser: UserProfile = {
   id: 'user-priya',
   name: 'Priya Sharma',
+  email: 'priya.sharma@accesshire.ai',
   age: 29,
   location: 'Hubli, India',
   education: 'B.Sc. Computer Applications',
@@ -29,7 +31,232 @@ export const mockUser: UserProfile = {
   capabilities: [],
 };
 
-// ─── Capabilities ─────────────────────────────────────────────
+// ─── Seeded Founder Candidate (Deven Goyal) ────────────────────
+
+export const mockDevenPatents: PatentItem[] = [
+  {
+    id: 'pat-1',
+    title: 'AI-Driven Wearable System for Air-Based Multi-Instrument Musical Performance',
+    applicationNo: '202611068506',
+    status: 'Filed / Patent Pending',
+    year: '2026',
+  },
+  {
+    id: 'pat-2',
+    title: 'ConnecX: Smart Storage Device with Network Storage Capability',
+    applicationNo: '202511122602',
+    status: 'Filed / Patent Pending',
+    year: '2025',
+  },
+  {
+    id: 'pat-3',
+    title: 'Lumo Intelligence: Smart Light, Ventilation and Mobile Detection System',
+    applicationNo: '202511132517',
+    status: 'Filed / Patent Pending',
+    year: '2025',
+  },
+];
+
+export const mockDevenCapabilities: Capability[] = [
+  {
+    id: 'cap-deven-fullstack',
+    name: 'Full Stack Dev',
+    category: 'technical',
+    proficiency: 93,
+    evidenceConfidence: 96,
+    independent: 89,
+    aiAssisted: 96,
+    recency: 'high',
+    evidence: [
+      { source: 'project', label: 'MailIQ — AI Email Platform', date: '2025-01', confidence: 95, verified: true },
+      { source: 'project', label: 'Cogniflow AI — Business Analytics Dashboard', date: '2026-07', confidence: 96, verified: true },
+      { source: 'work', label: 'Stack Sprint 1.0 Hackathon Winner', date: '2025-03', confidence: 94, verified: true },
+    ],
+    growth: [
+      { year: 2024, score: 72 },
+      { year: 2025, score: 85 },
+      { year: 2026, score: 93 },
+    ],
+    tags: ['react', 'nextjs', 'node', 'fullstack', 'typescript'],
+  },
+  {
+    id: 'cap-deven-patents',
+    name: 'Patent & Innovation',
+    category: 'technical',
+    proficiency: 96,
+    evidenceConfidence: 99,
+    independent: 94,
+    aiAssisted: 97,
+    recency: 'high',
+    evidence: [
+      { source: 'patent', label: 'AI Wearable Musical System', date: '2026', confidence: 99, verified: true, applicationNo: '202611068506' },
+      { source: 'patent', label: 'ConnecX Smart Storage Device', date: '2025', confidence: 98, verified: true, applicationNo: '202511122602' },
+      { source: 'patent', label: 'Lumo Intelligence Smart System', date: '2025', confidence: 98, verified: true, applicationNo: '202511132517' },
+    ],
+    growth: [
+      { year: 2024, score: 65 },
+      { year: 2025, score: 88 },
+      { year: 2026, score: 96 },
+    ],
+    tags: ['patents', 'hardware-ai', 'innovation', 'systems'],
+  },
+  {
+    id: 'cap-deven-python',
+    name: 'Python',
+    category: 'technical',
+    proficiency: 91,
+    evidenceConfidence: 95,
+    independent: 88,
+    aiAssisted: 95,
+    recency: 'high',
+    evidence: [
+      { source: 'project', label: 'MailIQ Backend & Classification', date: '2025-01', confidence: 96, verified: true },
+      { source: 'work', label: 'AI for Social Good Hackathon Winner — IIT Ropar', date: '2025-04', confidence: 98, verified: true },
+      { source: 'github', label: 'Devengoyal885 GitHub Repos', date: '2026-02', confidence: 92, verified: true },
+    ],
+    growth: [
+      { year: 2024, score: 70 },
+      { year: 2025, score: 83 },
+      { year: 2026, score: 91 },
+    ],
+    tags: ['python', 'ml', 'automation', 'backend'],
+  },
+  {
+    id: 'cap-deven-dsa',
+    name: 'Problem Solving & DSA',
+    category: 'technical',
+    proficiency: 94,
+    evidenceConfidence: 96,
+    independent: 92,
+    aiAssisted: 95,
+    recency: 'high',
+    evidence: [
+      { source: 'work', label: 'Peace of Code Hackathon 2nd Place — IIT Ropar', date: '2025-05', confidence: 95, verified: true },
+      { source: 'work', label: 'HackIndia Vibe Coding 2nd Place', date: '2025-09', confidence: 94, verified: true },
+      { source: 'assessment', label: 'Chandigarh University CSE (CGPA 8.21)', date: '2026-01', confidence: 92, verified: true },
+    ],
+    growth: [
+      { year: 2024, score: 78 },
+      { year: 2025, score: 88 },
+      { year: 2026, score: 94 },
+    ],
+    tags: ['dsa', 'algorithms', 'c++', 'problem-solving'],
+  },
+  {
+    id: 'cap-deven-ai',
+    name: 'AI / ML Engineering',
+    category: 'technical',
+    proficiency: 88,
+    evidenceConfidence: 92,
+    independent: 82,
+    aiAssisted: 94,
+    recency: 'high',
+    evidence: [
+      { source: 'project', label: 'Cogniflow AI Analytics Engine', date: '2026-07', confidence: 93, verified: true },
+      { source: 'project', label: 'MailIQ Automated Classification', date: '2025-01', confidence: 90, verified: true },
+    ],
+    growth: [
+      { year: 2024, score: 60 },
+      { year: 2025, score: 76 },
+      { year: 2026, score: 88 },
+    ],
+    tags: ['ai', 'llm', 'analytics', 'automation'],
+  },
+  {
+    id: 'cap-deven-cpp',
+    name: 'C / C++',
+    category: 'technical',
+    proficiency: 88,
+    evidenceConfidence: 90,
+    independent: 86,
+    aiAssisted: 90,
+    recency: 'high',
+    evidence: [
+      { source: 'work', label: 'Chandigarh University Coursework', date: '2025-06', confidence: 90, verified: true },
+      { source: 'github', label: 'Systems & Algorithms Repos', date: '2025-11', confidence: 88, verified: true },
+    ],
+    growth: [
+      { year: 2024, score: 75 },
+      { year: 2025, score: 82 },
+      { year: 2026, score: 88 },
+    ],
+    tags: ['c++', 'systems', 'oop', 'dsa'],
+  },
+  {
+    id: 'cap-deven-sql',
+    name: 'SQL & Data Systems',
+    category: 'technical',
+    proficiency: 89,
+    evidenceConfidence: 91,
+    independent: 85,
+    aiAssisted: 92,
+    recency: 'high',
+    evidence: [
+      { source: 'project', label: 'Cogniflow AI Database Schema', date: '2026-07', confidence: 92, verified: true },
+      { source: 'project', label: 'MailIQ Data Store', date: '2025-01', confidence: 90, verified: true },
+    ],
+    growth: [
+      { year: 2024, score: 68 },
+      { year: 2025, score: 80 },
+      { year: 2026, score: 89 },
+    ],
+    tags: ['sql', 'database', 'schema', 'analytics'],
+  },
+  {
+    id: 'cap-deven-leadership',
+    name: 'Leadership & Innovation',
+    category: 'leadership',
+    proficiency: 90,
+    evidenceConfidence: 95,
+    independent: 89,
+    aiAssisted: 91,
+    recency: 'high',
+    evidence: [
+      { source: 'work', label: 'Academic Achievers Award — Chandigarh University', date: '2025-12', confidence: 98, verified: true },
+      { source: 'work', label: 'Multiple National Hackathon Winner', date: '2025-10', confidence: 94, verified: true },
+    ],
+    growth: [
+      { year: 2024, score: 72 },
+      { year: 2025, score: 84 },
+      { year: 2026, score: 90 },
+    ],
+    tags: ['leadership', 'hackathons', 'teamwork', 'communication'],
+  },
+];
+
+export const mockDevenUser: UserProfile = {
+  id: 'user-deven',
+  name: 'Deven Goyal',
+  email: 'goyaldeven4809@gmail.com',
+  location: 'Chandigarh / Haryana, India',
+  education: 'B.E. Computer Science Engineering (Full Stack), Chandigarh University (CGPA 8.21)',
+  targetRole: 'Software Engineer / AI Systems Architect',
+  capabilityMomentum: 22,
+  capabilityTwinScore: 89,
+  futureReadiness: 86,
+  opportunityMatch: 95,
+  activeTransitions: 3,
+  capabilities: mockDevenCapabilities,
+  patents: mockDevenPatents,
+};
+
+export function getUserProfile(identifier?: string): UserProfile {
+  if (!identifier) return mockDevenUser;
+  const lower = identifier.toLowerCase();
+  if (lower.includes('priya')) {
+    return { ...mockUser, capabilities: mockCapabilities };
+  }
+  return mockDevenUser;
+}
+
+export function getUserCapabilities(identifier?: string): Capability[] {
+  if (identifier && identifier.toLowerCase().includes('priya')) {
+    return mockCapabilities;
+  }
+  return mockDevenCapabilities;
+}
+
+// ─── Capabilities (Priya) ──────────────────────────────────────
 
 export const mockCapabilities: Capability[] = [
   {
@@ -728,7 +955,7 @@ export const mockEmails: Email[] = [
     fromOrg: 'Infosys AI Labs',
     subject: 'You have been shortlisted — AI Operations Internship',
     preview: 'Congratulations! You have been shortlisted for the next round of our AI Operations Internship selection...',
-    body: 'Dear Priya,\n\nCongratulations! We are pleased to inform you that you have been shortlisted for the next round of our AI Operations Internship selection process.\n\nYour technical interview is scheduled for September 2, 2026 at 2:00 PM IST. Please confirm your availability by replying to this email.\n\nBest regards,\nRohan Mehta\nTalent Acquisition, Infosys AI Labs',
+    body: 'Dear Candidate,\n\nCongratulations! We are pleased to inform you that you have been shortlisted for the next round of our AI Operations Internship selection process.\n\nYour technical interview is scheduled for September 2, 2026 at 2:00 PM IST. Please confirm your availability by replying to this email.\n\nBest regards,\nRohan Mehta\nTalent Acquisition, Infosys AI Labs',
     date: '2026-08-28T08:30:00Z',
     category: 'interview',
     extractedEvent: { type: 'Interview', date: 'September 2, 2026', role: 'AI Operations Intern' },
@@ -754,7 +981,7 @@ export const mockEmails: Email[] = [
     fromOrg: 'Google India',
     subject: 'Women in Tech Scholarship — Application Received',
     preview: 'Thank you for applying to the Google Women in Tech Scholarship 2026. Your application is under review...',
-    body: 'Dear Priya Sharma,\n\nThank you for your application to the Google Women in Tech Scholarship 2026.\n\nYour application is currently under review. You will hear back from us within 2 weeks.\n\nBest wishes,\nPriya Nair\nGoogle India Scholarships Team',
+    body: 'Dear Candidate,\n\nThank you for your application to the Google Women in Tech Scholarship 2026.\n\nYour application is currently under review. You will hear back from us within 2 weeks.\n\nBest wishes,\nPriya Nair\nGoogle India Scholarships Team',
     date: '2026-08-26T11:15:00Z',
     category: 'opportunity',
     extractedEvent: { type: 'Scholarship Review', date: '2 weeks', role: 'Applicant' },
@@ -767,7 +994,7 @@ export const mockEmails: Email[] = [
     fromOrg: 'Zoho Corporation',
     subject: 'Application Status Update — Backend Engineering Intern',
     preview: 'Your application for Backend Engineering Intern has been reviewed. We would like to invite you for an assessment...',
-    body: 'Dear Priya,\n\nYour application for the Backend Engineering Intern position has been reviewed by our team.\n\nWe would like to invite you to complete our technical assessment. The assessment takes approximately 90 minutes and must be completed by September 10.\n\nLink: zoho.com/careers/assessment/12345\n\nGood luck!\nZoho HR Team',
+    body: 'Dear Candidate,\n\nYour application for the Backend Engineering Intern position has been reviewed by our team.\n\nWe would like to invite you to complete our technical assessment. The assessment takes approximately 90 minutes and must be completed by September 10.\n\nLink: zoho.com/careers/assessment/12345\n\nGood luck!\nZoho HR Team',
     date: '2026-08-27T09:45:00Z',
     category: 'assessment',
     extractedEvent: { type: 'Technical Assessment', date: 'September 10, 2026', role: 'Backend Engineering Intern' },
@@ -780,7 +1007,7 @@ export const mockEmails: Email[] = [
     fromOrg: 'Digital Bharat Initiative',
     subject: 'Community Tech Lead — Shortlisted',
     preview: 'We are excited to inform you that your application for Community Tech Lead has progressed to the final round...',
-    body: 'Dear Priya,\n\nWe are excited to inform you that your application for the Community Tech Lead position has progressed to the final round.\n\nWe will be conducting a 30-minute call to discuss your vision and experience. Please suggest 3 time slots that work for you this week.\n\nDigital Bharat Initiative Team',
+    body: 'Dear Candidate,\n\nWe are excited to inform you that your application for the Community Tech Lead position has progressed to the final round.\n\nWe will be conducting a 30-minute call to discuss your vision and experience. Please suggest 3 time slots that work for you this week.\n\nDigital Bharat Initiative Team',
     date: '2026-08-28T10:00:00Z',
     category: 'interview',
     extractedEvent: { type: 'Final Round Call', date: 'This week', role: 'Community Tech Lead' },
@@ -793,7 +1020,7 @@ export const mockEmails: Email[] = [
     fromOrg: 'Coursera',
     subject: 'Your AI Engineering path — 2 modules remaining',
     preview: 'You are making great progress! Complete the remaining 2 modules to earn your AI Engineering certificate...',
-    body: 'Hi Priya,\n\nYou are making fantastic progress on the AI Engineering learning path!\n\nYou have 2 modules remaining:\n- Module 7: Agent Orchestration (60 min)\n- Module 8: Cloud AI Deployment (45 min)\n\nComplete them to earn your certificate and add verified evidence to your AccessHire profile.',
+    body: 'Hi Candidate,\n\nYou are making fantastic progress on the AI Engineering learning path!\n\nYou have 2 modules remaining:\n- Module 7: Agent Orchestration (60 min)\n- Module 8: Cloud AI Deployment (45 min)\n\nComplete them to earn your certificate and add verified evidence to your AccessHire profile.',
     date: '2026-08-25T16:30:00Z',
     category: 'general',
     extractedEvent: { type: 'Learning Milestone', role: 'AI Engineering Certificate' },
@@ -806,7 +1033,7 @@ export const mockEmails: Email[] = [
     fromOrg: 'Scale AI',
     subject: 'AI Quality Evaluator — We reviewed your profile',
     preview: 'We noticed your profile on AccessHire and believe you could be a great fit for our AI Quality Evaluator contract...',
-    body: 'Hi Priya,\n\nOur team reviewed your capability profile and believe you would be a strong fit for our AI Quality Evaluator contract role.\n\nThis is a flexible, remote contract that pays $18/hr. You can work 10-20 hours per week.\n\nInterested? Reply to this email or apply at scale.ai/careers.',
+    body: 'Hi Candidate,\n\nOur team reviewed your capability profile and believe you would be a strong fit for our AI Quality Evaluator contract role.\n\nThis is a flexible, remote contract that pays $18/hr. You can work 10-20 hours per week.\n\nInterested? Reply to this email or apply at scale.ai/careers.',
     date: '2026-08-26T13:00:00Z',
     category: 'opportunity',
     extractedEvent: { type: 'Job Opportunity', role: 'AI Quality Evaluator' },
@@ -819,7 +1046,7 @@ export const mockEmails: Email[] = [
     fromOrg: 'IIT Dharwad',
     subject: 'Research Assistant Position — Interest Check',
     preview: 'I came across your work on AI automation and would like to discuss a potential Research Assistant opportunity...',
-    body: 'Dear Priya,\n\nI am a faculty member at IIT Dharwad working on AI for inclusive education. I came across your work and would like to discuss a potential Research Assistant opportunity.\n\nThe role is part-time remote and includes co-authorship on our upcoming publication.\n\nWould you be available for a 20-minute call next week?\n\nDr. Aisha Patel\nAssistant Professor, AI & Education Lab',
+    body: 'Dear Candidate,\n\nI am a faculty member at IIT Dharwad working on AI for inclusive education. I came across your work and would like to discuss a potential Research Assistant opportunity.\n\nThe role is part-time remote and includes co-authorship on our upcoming publication.\n\nWould you be available for a 20-minute call next week?\n\nDr. Aisha Patel\nAssistant Professor, AI & Education Lab',
     date: '2026-08-24T11:00:00Z',
     category: 'opportunity',
     extractedEvent: { type: 'Research Opportunity', role: 'Research Assistant' },
@@ -832,7 +1059,7 @@ export const mockEmails: Email[] = [
     fromOrg: 'AccessHire',
     subject: 'Capability Update — Your AI score increased by 6%',
     preview: 'Your recent AI Evaluation trial has updated your Capability Twin. AI / ML proficiency increased from 72% to 78%...',
-    body: 'Hi Priya,\n\nYour recent AI Evaluation practical trial has been processed and your Capability Twin has been updated.\n\nAI / ML: 72% → 78% (+6%)\nAI Evaluation: New capability added at 74%\nFuture Readiness: 67% → 74% (+7%)\n\nYour capability momentum is now +18% this month.',
+    body: 'Hi Candidate,\n\nYour recent AI Evaluation practical trial has been processed and your Capability Twin has been updated.\n\nAI / ML: 72% → 78% (+6%)\nAI Evaluation: New capability added at 74%\nFuture Readiness: 67% → 74% (+7%)\n\nYour capability momentum is now +18% this month.',
     date: '2026-08-27T18:00:00Z',
     category: 'general',
     read: false,
@@ -862,6 +1089,19 @@ export const mockMomentumData: MomentumDataPoint[] = [
   { month: 'Jul', capabilities: 72, opportunities: 63, readiness: 65 },
   { month: 'Aug', capabilities: 78, opportunities: 74, readiness: 71 },
   { month: 'Sep', capabilities: 82, opportunities: 83, readiness: 74 },
+];
+
+// ─── Future Workforce Signals ─────────────────────────────────
+
+export const mockFutureSignals = [
+  { role: 'AI Engineering', trend: 'rising', magnitude: 3, year2026: 72, year2027: 88, year2028: 95 },
+  { role: 'AI Security & Red Teaming', trend: 'rising', magnitude: 3, year2026: 58, year2027: 74, year2028: 89 },
+  { role: 'Cloud AI & MLOps', trend: 'rising', magnitude: 2, year2026: 64, year2027: 77, year2028: 85 },
+  { role: 'AI Evaluation & Quality', trend: 'rising', magnitude: 2, year2026: 51, year2027: 68, year2028: 81 },
+  { role: 'Traditional QA', trend: 'stable', magnitude: 0, year2026: 62, year2027: 61, year2028: 58 },
+  { role: 'Routine IT Support', trend: 'declining', magnitude: -2, year2026: 58, year2027: 47, year2028: 35 },
+  { role: 'Data Systems & Pipelines', trend: 'rising', magnitude: 1, year2026: 69, year2027: 75, year2028: 78 },
+  { role: 'AI Product & Governance', trend: 'rising', magnitude: 2, year2026: 44, year2027: 61, year2028: 73 },
 ];
 
 // ─── Workforce Departments ────────────────────────────────────
@@ -953,6 +1193,15 @@ export const mockEquityCandidates: EquityCandidate[] = [
   },
   {
     id: 'eq-2',
+    name: 'Deven Goyal',
+    capabilityFit: 94,
+    evidenceConfidence: 98,
+    careerGap: 'None (Engineering Student & Innovator)',
+    location: 'Chandigarh / Haryana, India',
+    credentials: 'B.E. Computer Science Engineering (CGPA 8.21) · 3 Patents',
+  },
+  {
+    id: 'eq-3',
     name: 'Arjun Nair',
     capabilityFit: 79,
     evidenceConfidence: 81,
@@ -961,7 +1210,7 @@ export const mockEquityCandidates: EquityCandidate[] = [
     credentials: 'Diploma in CS',
   },
   {
-    id: 'eq-3',
+    id: 'eq-4',
     name: 'Fatima Sheikh',
     capabilityFit: 84,
     evidenceConfidence: 87,
@@ -977,16 +1226,16 @@ export const mockNotifications: Notification[] = [
   {
     id: 'notif-1',
     type: 'capability',
-    title: 'AI Capability +6%',
-    message: 'Your AI / ML proficiency increased from 72% to 78% after the evaluation trial.',
+    title: 'Patent Evidence Verified',
+    message: 'Patent App 202611068506 verified. Innovation Capability score updated to 96%.',
     timestamp: '2026-08-28T18:00:00Z',
     read: false,
   },
   {
     id: 'notif-2',
     type: 'opportunity',
-    title: 'New 94% Match',
-    message: 'Community Tech Lead at Digital Bharat Initiative — 95% match with your capabilities.',
+    title: 'New 95% Match',
+    message: 'AI Systems Architect / Software Engineer — 95% match with your Capability Twin.',
     timestamp: '2026-08-28T14:00:00Z',
     read: false,
   },
@@ -1001,90 +1250,57 @@ export const mockNotifications: Notification[] = [
   {
     id: 'notif-4',
     type: 'resume',
-    title: 'Resume Can Improve +13%',
-    message: 'Optimizing for Data Engineering Fellowship can improve ATS fit from 69% to 84%.',
+    title: 'Resume Optimized to 94%',
+    message: 'Tailored resume generated with verified Patent and Full Stack evidence.',
     timestamp: '2026-08-27T20:00:00Z',
     read: true,
   },
   {
     id: 'notif-5',
     type: 'verification',
-    title: 'Capability Verified: 83%',
-    message: 'Your AI Ops practical trial is complete. Capability Twin updated.',
+    title: 'Capability Verified: 93%',
+    message: 'Cogniflow AI Dashboard project verified. Full Stack capability updated.',
     timestamp: '2026-08-27T17:00:00Z',
     read: true,
   },
 ];
 
-// ─── Future Workforce Signals ─────────────────────────────────
-
-export const mockFutureSignals = [
-  { role: 'AI Engineering', trend: 'rising', magnitude: 3, year2026: 72, year2027: 88, year2028: 95 },
-  { role: 'AI Security', trend: 'rising', magnitude: 3, year2026: 58, year2027: 74, year2028: 89 },
-  { role: 'Cloud AI', trend: 'rising', magnitude: 2, year2026: 64, year2027: 77, year2028: 85 },
-  { role: 'AI Evaluation', trend: 'rising', magnitude: 2, year2026: 51, year2027: 68, year2028: 81 },
-  { role: 'Traditional QA', trend: 'stable', magnitude: 0, year2026: 62, year2027: 61, year2028: 58 },
-  { role: 'Routine IT Support', trend: 'declining', magnitude: -2, year2026: 58, year2027: 47, year2028: 35 },
-  { role: 'Data Engineering', trend: 'rising', magnitude: 1, year2026: 69, year2027: 75, year2028: 78 },
-  { role: 'AI Product Management', trend: 'rising', magnitude: 2, year2026: 44, year2027: 61, year2028: 73 },
-];
-
 // ─── AI Mock Responses ────────────────────────────────────────
 
 export const mockAIResponses: Record<string, string> = {
-  'interview-prep': `Great! I've loaded your full context for the Infosys AI Operations Internship interview.
+  'interview-prep': `Great! I've loaded your full context for the Software Engineer / AI Systems Architect interview.
 
 **Your Capability Profile for This Role:**
-- Python 87% ✓ (above threshold)
-- APIs 84% ✓ 
-- Linux 76% ✓
-- Automation 80% ✓
-- AI Evaluation: 74% (gap — but trending up)
+- Full Stack Dev 93% ✓ (above threshold)
+- Patent & Innovation 96% ✓ (Top 1% Evidence)
+- Problem Solving & DSA 94% ✓
+- Python 91% ✓
+- SQL & Databases 89% ✓
 
-**Likely Interview Topics Based on JD Analysis:**
+**Likely Interview Topics Based on Your Profile:**
 
-1. **AI Service Monitoring** — How would you detect degradation in an LLM service?
-2. **Incident Response** — Walk through a production AI outage you've handled (or would handle)
-3. **Evaluation Metrics** — How do you measure LLM output quality?
-4. **Python Scripting** — Write a health-check script for a deployed model endpoint
-
-**Recommended Prep Sequence:**
-1. Review your practical trial results (Technical Execution: 84%)
-2. Prepare STAR stories around your troubleshooting experience
-3. Study LLM evaluation frameworks: RAGAS, DeepEval
-4. Practice explaining your Capability Twin scores
+1. **Patent Architecture** — Walk through the AI-Driven Wearable System (App No. 202611068506) and how signal processing / hardware-software interfaces work.
+2. **Full-Stack Performance** — Discuss MailIQ & Cogniflow AI backend classification pipelines and real-time dashboard analytics.
+3. **Problem Solving / DSA** — Code optimization and algorithmic efficiency demonstrated in your IIT Ropar hackathon wins.
 
 Want me to run a mock interview session?`,
 
-  'resume-help': `I can see you're targeting the **AI Operations Internship at Infosys AI Labs**. Your current resume has an ATS fit of **81%**.
+  'resume-help': `Your Master Profile includes 3 filed patents and 5 hackathon awards. Your current ATS fit is **94%**.
 
-**Key gaps I've identified:**
-- Missing: "AI evaluation", "model monitoring", "LLM" keywords
-- Your Python experience isn't quantified
-- Cloud section is thin (this role requires cloud context)
+**Key strengths highlighted:**
+- Patent Applications: 202611068506, 202511122602, 202511132517
+- Full-Stack & AI Projects: MailIQ, Cogniflow AI
+- Hackathon Wins: IIT Ropar AI for Social Good Winner, Stack Sprint 1.0 Winner
 
-**Recommended optimizations:**
-1. Add "Deployed AI evaluation pipeline using Python and REST APIs" to your project section
-2. Quantify: "Automated workflows reducing manual effort by 40%"
-3. Add AI evaluation terminology from your practical trial
+Resume is optimized and ready for export!`,
 
-Want me to generate the optimized version now?`,
+  'capability-question': `Based on your Adaptive Capability Twin:
 
-  'capability-question': `Based on your Capability Twin, here's where you stand for the AI Operations Engineer transition:
+**Top Verified Capabilities:**
+- Patent & Innovation: 96% (3 Patents Filed)
+- Problem Solving & DSA: 94% (IIT Ropar Hackathon Winner)
+- Full Stack Dev: 93% (MailIQ, Cogniflow AI)
+- Python: 91%
 
-**Strongest Transferable Capabilities:**
-- Troubleshooting: 91% — directly maps to production incident response
-- Python: 87% — core language for AI ops
-- Automation: 80% — essential for MLOps pipelines
-
-**The Critical Gap:**
-- AI Evaluation: Currently 45%, required: 70%+
-- This is your single most important capability to close
-
-**Fastest path to close it:**
-1. Complete the AI Evaluation practical trial (35 min) → +15-20%
-2. Review RAGAS / DeepEval frameworks (2 hours)
-3. Build one small evaluation script for a public LLM
-
-After these steps, your transition readiness jumps from 74% → 89%.`,
+All capability scores are verified with high-confidence evidence.`,
 };

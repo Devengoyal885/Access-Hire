@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Bell, User, Menu, Command,
-  Brain, CheckSquare, Zap, LogOut, RefreshCw, LogIn, ChevronDown, Check,
+  Brain, CheckSquare, Zap, LogOut, RefreshCw, LogIn, ChevronDown, Check, Building2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -22,7 +22,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(mockNotifications);
-  const { user, isAuthenticated, logout, openAuthModal, loginAsCandidate, loginAsEmployer } = useAuth();
+  const { user, isAuthenticated, logout, openAuthModal, switchView, loginAsDeven } = useAuth();
   const router = useRouter();
 
   const unread = notifications.filter(n => !n.read).length;
@@ -60,6 +60,8 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
     verification: <CheckSquare size={13} style={{ color: 'var(--green)' }} />,
     resume: <Search size={13} style={{ color: 'var(--violet)' }} />,
   };
+
+  const activeView = user?.activeView || 'candidate';
 
   return (
     <>
@@ -106,6 +108,44 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
             </kbd>
           </div>
         </button>
+
+        {/* Dual Role View Switcher in Header */}
+        {isAuthenticated && user && (user.role === 'both' || user.role === 'employer') && (
+          <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--bg-surface)', padding: '0.2rem', borderRadius: 8, border: '1px solid var(--border)' }}>
+            <button
+              onClick={() => switchView('candidate')}
+              style={{
+                padding: '0.25rem 0.625rem',
+                borderRadius: 6,
+                fontSize: '0.725rem',
+                fontWeight: 700,
+                border: 'none',
+                cursor: 'pointer',
+                background: activeView === 'candidate' ? 'var(--blue-primary)' : 'transparent',
+                color: activeView === 'candidate' ? 'white' : 'var(--text-muted)',
+                transition: 'all 0.15s',
+              }}
+            >
+              Candidate App
+            </button>
+            <button
+              onClick={() => switchView('employer')}
+              style={{
+                padding: '0.25rem 0.625rem',
+                borderRadius: 6,
+                fontSize: '0.725rem',
+                fontWeight: 700,
+                border: 'none',
+                cursor: 'pointer',
+                background: activeView === 'employer' ? 'var(--violet)' : 'transparent',
+                color: activeView === 'employer' ? 'white' : 'var(--text-muted)',
+                transition: 'all 0.15s',
+              }}
+            >
+              Enterprise Console
+            </button>
+          </div>
+        )}
 
         {/* Right Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginLeft: 'auto' }}>
@@ -216,7 +256,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
               >
                 <div style={{
                   width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
-                  background: user.role === 'employer'
+                  background: activeView === 'employer'
                     ? 'linear-gradient(135deg, #8b5cf6, #06b6d4)'
                     : 'linear-gradient(135deg, #4f8ef7, #8b5cf6)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -229,7 +269,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                     {user.name}
                   </span>
                   <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', lineHeight: 1.2 }}>
-                    {user.title || (user.role === 'employer' ? 'Workforce Recruiter' : 'Candidate')}
+                    {user.title || (activeView === 'employer' ? 'Workforce Recruiter' : 'Candidate')}
                   </span>
                 </div>
                 <ChevronDown size={12} style={{ color: 'var(--text-muted)' }} />
@@ -253,8 +293,8 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                     <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid var(--border)', marginBottom: '0.375rem' }}>
                       <div style={{ fontSize: '0.775rem', fontWeight: 700, color: 'var(--text-primary)' }}>{user.name}</div>
                       <div style={{ fontSize: '0.675rem', color: 'var(--text-muted)' }}>{user.email}</div>
-                      <span className={`badge ${user.role === 'employer' ? 'badge-violet' : 'badge-blue'}`} style={{ marginTop: '0.375rem', display: 'inline-block' }}>
-                        {user.role === 'employer' ? 'Enterprise Console' : 'Candidate OS'}
+                      <span className={`badge ${activeView === 'employer' ? 'badge-violet' : 'badge-green'}`} style={{ marginTop: '0.375rem', display: 'inline-block' }}>
+                        {activeView === 'employer' ? 'Enterprise View' : 'Candidate View'}
                       </span>
                     </div>
 
@@ -275,8 +315,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                     <button
                       onClick={() => {
                         setUserMenuOpen(false);
-                        if (user.role === 'candidate') loginAsEmployer();
-                        else loginAsCandidate();
+                        switchView(activeView === 'candidate' ? 'employer' : 'candidate');
                       }}
                       style={{
                         width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem',
@@ -286,7 +325,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                         textAlign: 'left',
                       }}
                     >
-                      <RefreshCw size={13} /> Switch Persona ({user.role === 'candidate' ? 'Recruiter' : 'Candidate'})
+                      <RefreshCw size={13} /> Switch View ({activeView === 'candidate' ? 'Enterprise' : 'Candidate'})
                     </button>
 
                     <button

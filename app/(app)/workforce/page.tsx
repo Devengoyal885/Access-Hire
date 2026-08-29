@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2, Users, TrendingUp, Shield, AlertTriangle,
   CheckCircle2, ArrowRight, ChevronRight, Brain,
-  FileText, Zap, Eye, Target, Accessibility, X, Check,
+  FileText, Zap, Eye, Target, Accessibility, X, Check, Search, Filter, RefreshCw,
 } from 'lucide-react';
-import { mockWorkforceDepartments, mockEquityCandidates } from '@/data/mockData';
+import { mockWorkforceDepartments, mockEquityCandidates, mockFutureSignals } from '@/data/mockData';
 import { sleep } from '@/lib/utils';
 
 const capabilityKeys = ['Python', 'AI / ML', 'Cloud', 'SQL', 'Linux', 'Automation', 'Data Analysis', 'Security'];
@@ -26,13 +26,184 @@ function ScoreCell({ value }: { value: number }) {
   );
 }
 
+// ─── 1. OVERVIEW SCREEN ─────────────────────────────────────────
+function OverviewTab() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {/* Capability Coverage Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
+        {[
+          { label: 'AI / ML Coverage', value: '48%', sub: '+12% this quarter', color: 'var(--violet)' },
+          { label: 'Cloud Capability', value: '58%', sub: '+8% this quarter', color: 'var(--cyan)' },
+          { label: 'Data Systems', value: '76%', sub: 'Stable coverage', color: 'var(--blue-primary)' },
+          { label: 'Cybersecurity', value: '52%', sub: '+5% this quarter', color: 'var(--green)' },
+        ].map(c => (
+          <div key={c.label} className="metric-card">
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.label}</div>
+            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: c.color, marginTop: '0.2rem' }}>{c.value}</div>
+            <div style={{ fontSize: '0.675rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{c.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '1.25rem' }}>
+        {/* Future Demand Signals */}
+        <div className="card" style={{ padding: '1.25rem' }}>
+          <div className="section-title" style={{ marginBottom: '0.375rem' }}>Future Capability Demand Forecast</div>
+          <div className="section-subtitle" style={{ marginBottom: '1rem' }}>AI-projected workforce capability trends over 2026–2028</div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+            {mockFutureSignals.map(signal => (
+              <div key={signal.role} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '0.625rem 0.875rem', background: 'var(--bg-elevated)',
+                borderRadius: 8, border: '1px solid var(--border-subtle)',
+              }}>
+                <div>
+                  <div style={{ fontSize: '0.825rem', fontWeight: 700 }}>{signal.role}</div>
+                  <div style={{ fontSize: '0.675rem', color: 'var(--text-muted)' }}>
+                    2026: {signal.year2026}% → 2028: {signal.year2028}% Demand
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{
+                    fontSize: '0.7rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: 999,
+                    background: signal.trend === 'rising' ? 'rgba(16,185,129,0.15)' : signal.trend === 'declining' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)',
+                    color: signal.trend === 'rising' ? 'var(--green)' : signal.trend === 'declining' ? 'var(--red)' : 'var(--amber)',
+                  }}>
+                    {signal.trend === 'rising' ? '↑ RISING DEMAND' : signal.trend === 'declining' ? '↓ DECLINING DEMAND' : '→ STABLE'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* High-Potential Transition Callouts */}
+        <div className="card" style={{ padding: '1.25rem' }}>
+          <div className="section-title" style={{ marginBottom: '0.375rem' }}>High-Potential Callouts</div>
+          <div className="section-subtitle" style={{ marginBottom: '1rem' }}>Ready internal mobility pipelines</div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {[
+              { target: 'AI Operations Engineers', count: '1,240', source: 'IT Support & Infra', readiness: 74 },
+              { target: 'AI Analytics Engineers', count: '890', source: 'Data & Analytics', readiness: 86 },
+              { target: 'AI Evaluation Specialists', count: '650', source: 'Quality Assurance', readiness: 81 },
+              { target: 'AI-Enabled BA', count: '2,100', source: 'Operations & Business', readiness: 79 },
+            ].map(c => (
+              <div key={c.target} style={{
+                padding: '0.75rem', background: 'var(--bg-elevated)', borderRadius: 8,
+                border: '1px solid var(--border)',
+              }}>
+                <div style={{ fontSize: '0.825rem', fontWeight: 800, color: 'var(--blue-primary)' }}>{c.target}</div>
+                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                  {c.count} eligible from {c.source}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.375rem' }}>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Avg Readiness:</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--green)' }}>{c.readiness}%</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── 2. WORKFORCE CAPABILITY MAP SCREEN ─────────────────────────
+function CapabilityMapTab() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedDept, setSelectedDept] = useState<string>('all');
+
+  const filteredDepts = mockWorkforceDepartments.filter(d => 
+    (selectedDept === 'all' || d.id === selectedDept) &&
+    d.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {/* Search & Filter Controls */}
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
+          <Search size={14} style={{ position: 'absolute', left: 10, top: 10, color: 'var(--text-muted)' }} />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            placeholder="Search department or team..."
+            className="input"
+            style={{ paddingLeft: 32, fontSize: '0.8rem' }}
+          />
+        </div>
+        <select
+          value={selectedDept}
+          onChange={e => setSelectedDept(e.target.value)}
+          className="input"
+          style={{ width: 220, fontSize: '0.8rem', cursor: 'pointer' }}
+        >
+          <option value="all">All Departments</option>
+          {mockWorkforceDepartments.map(d => (
+            <option key={d.id} value={d.id}>{d.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="card" style={{ padding: '1.25rem', overflowX: 'auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <div>
+            <div className="section-title">Workforce Capability Matrix</div>
+            <div className="section-subtitle">Aggregate Capability Twin scores across enterprise units</div>
+          </div>
+          <div style={{ display: 'flex', gap: '0.625rem', fontSize: '0.7rem' }}>
+            {[{ color: '#10b981', l: '75+' }, { color: '#4f8ef7', l: '55-74' }, { color: '#f59e0b', l: '35-54' }, { color: '#ef4444', l: '<35' }].map(x => (
+              <span key={x.l} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-muted)' }}>
+                <span style={{ width: 10, height: 10, background: x.color, borderRadius: 2, display: 'inline-block', opacity: 0.7 }} />
+                {x.l}%
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 650 }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Department</th>
+              <th style={{ padding: '0.375rem 0.5rem', fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>Headcount</th>
+              {capabilityKeys.map(k => (
+                <th key={k} style={{ padding: '0.375rem 0.5rem', fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, textAlign: 'center' }}>{k}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredDepts.map(dept => (
+              <tr key={dept.id} style={{ borderTop: '1px solid var(--border-subtle)' }}>
+                <td style={{ padding: '0.5rem 0.5rem', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
+                  {dept.name}
+                </td>
+                <td style={{ padding: '0.5rem 0.5rem', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+                  {dept.headcount.toLocaleString()}
+                </td>
+                {capabilityKeys.map(k => (
+                  <ScoreCell key={k} value={dept.capabilities[k] || 0} />
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── 3. EQUITY REVIEW TAB ───────────────────────────────────────
 function EquityNudge() {
-  const [expanded, setExpanded] = useState<string | null>(null);
   const [generated, setGenerated] = useState<string | null>(null);
   const [selectedCandidate, setSelectedCandidate] = useState<typeof mockEquityCandidates[0] | null>(null);
 
   const generateQuestions = async (id: string) => {
-    await sleep(600);
+    await sleep(500);
     setGenerated(id);
   };
 
@@ -43,8 +214,8 @@ function EquityNudge() {
         background: 'rgba(79,142,247,0.06)', border: '1px solid rgba(79,142,247,0.15)',
         borderRadius: 8, fontSize: '0.775rem', color: 'var(--text-secondary)', lineHeight: 1.5,
       }}>
-        <strong style={{ color: 'var(--blue-primary)' }}>🤖 AI recommends. Humans decide.</strong>
-        {' '}Equity Nudge surfaces capability-based insights during candidate review. All hiring decisions remain with human reviewers.
+        <strong style={{ color: 'var(--blue-primary)' }}>🤖 AI Recommendation Layer:</strong>
+        {' '}Surfaces non-blocking equity insights during candidate review. All decisions require explicit human reviewer approval.
       </div>
 
       {mockEquityCandidates.map(candidate => (
@@ -88,8 +259,8 @@ function EquityNudge() {
                   <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--amber)' }}>EQUITY CHECK</span>
                 </div>
                 <div style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
-                  Career gap of <strong>{candidate.careerGap}</strong> detected.
-                  &quot;Career continuity may not accurately represent current capability.&quot;
+                  Career continuity note: <strong>{candidate.careerGap}</strong>.
+                  &quot;Career continuity may not accurately represent current capability. Evaluate demonstrated skills separately from career-gap duration.&quot;
                   This candidate has <strong style={{ color: 'var(--green)' }}>{candidate.capabilityFit}% capability fit</strong> with verified evidence.
                 </div>
               </div>
@@ -124,7 +295,7 @@ function EquityNudge() {
                       </div>
                     ))}
                     <div style={{ marginTop: '0.625rem', fontSize: '0.7rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                      These questions are grounded in verified capabilities, not career gaps or credentials.
+                      Questions target verified capabilities rather than employment continuity or degree credentials.
                     </div>
                   </motion.div>
                 )}
@@ -189,7 +360,7 @@ function EquityNudge() {
               </div>
 
               <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '1.25rem' }}>
-                Candidate verified via AccessHire Adaptive Capability Twin. Demonstrated high performance in practical problem solving and automated workflow execution.
+                Candidate verified via AccessHire Adaptive Capability Twin. High performance in practical problem solving and automated workflow execution.
               </div>
 
               <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setSelectedCandidate(null)}>
@@ -203,6 +374,7 @@ function EquityNudge() {
   );
 }
 
+// ─── 4. JOB FAIRNESS AGENT TAB ──────────────────────────────────
 function JobFairnessAgent() {
   const [rewritten, setRewritten] = useState(false);
 
@@ -219,9 +391,9 @@ function JobFairnessAgent() {
 • Capability verified through practical trial or portfolio projects`;
 
   const flags = [
-    { issue: 'Credential proxy', text: "Master's degree in Computer Science", suggestion: 'Demonstrated proficiency in...' },
-    { issue: 'Experience proxy', text: 'Fortune 500 company', suggestion: 'Production systems experience' },
-    { issue: 'Continuity bias', text: 'No career gaps acceptable', suggestion: 'Remove — irrelevant to capability' },
+    { issue: 'Credential Proxy', text: "Master's degree in Computer Science", suggestion: 'Demonstrated proficiency in Python, AI engineering' },
+    { issue: 'Experience Proxy', text: '5+ years Fortune 500 company', suggestion: 'Practical experience deploying production services' },
+    { issue: 'Continuity Bias', text: 'No career gaps acceptable', suggestion: 'Remove — evaluate verified capability directly' },
   ];
 
   return (
@@ -231,14 +403,13 @@ function JobFairnessAgent() {
         background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.15)',
         borderRadius: 8, fontSize: '0.775rem', color: 'var(--text-secondary)',
       }}>
-        <strong style={{ color: 'var(--violet)' }}>Job Fairness Agent</strong> analyzes job descriptions for credential proxies, geographic bias, and exclusionary language.
-        Human approval required for all suggested rewrites.
+        <strong style={{ color: 'var(--violet)' }}>Job Fairness Agent:</strong> Analyzes job descriptions for credential proxies, geographic bias, and exclusionary language. Explicit HR human approval required for all suggested rewrites.
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
         <div className="card-flat" style={{ padding: '1rem' }}>
           <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--red)', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>
-            ORIGINAL (FLAGGED)
+            TRADITIONAL REQUIREMENT (FLAGGED)
           </div>
           <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
             {original}
@@ -247,7 +418,7 @@ function JobFairnessAgent() {
 
         <div className="card-flat" style={{ padding: '1rem', border: '1px solid rgba(16,185,129,0.2)' }}>
           <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--green)', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>
-            CAPABILITY-BASED REWRITE
+            CAPABILITY-BASED REQUIREMENT
           </div>
           <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
             {rewrite}
@@ -257,7 +428,7 @@ function JobFairnessAgent() {
 
       <div>
         <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>
-          FLAGS DETECTED
+          FLAGS DETECTED INLINE
         </div>
         {flags.map(f => (
           <div key={f.issue} style={{
@@ -276,7 +447,7 @@ function JobFairnessAgent() {
 
       {!rewritten ? (
         <button className="btn-primary" style={{ width: 'fit-content' }} onClick={() => setRewritten(true)}>
-          <CheckCircle2 size={14} /> Approve Capability-Based Rewrite
+          <CheckCircle2 size={14} /> Review &amp; Approve Capability-Based Rewrite
         </button>
       ) : (
         <motion.div
@@ -289,13 +460,14 @@ function JobFairnessAgent() {
             display: 'flex', alignItems: 'center', gap: '0.5rem',
           }}
         >
-          <CheckCircle2 size={15} /> Rewrite approved and saved. Human decision recorded.
+          <CheckCircle2 size={15} /> Rewrite Approved &amp; Recorded by HR Reviewer.
         </motion.div>
       )}
     </div>
   );
 }
 
+// ─── 5. ACCESSIBILITY BLUEPRINTS TAB ────────────────────────────
 function AccessibilityAgent() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -304,20 +476,20 @@ function AccessibilityAgent() {
         background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.15)',
         borderRadius: 8, fontSize: '0.825rem', fontWeight: 700, color: 'var(--cyan)',
       }}>
-        "Enable the person, not just filter for fit."
+        "Ask how the workplace can enable the person — not confirm compliance checkboxes."
       </div>
 
       <div className="card-flat" style={{ padding: '1.25rem' }}>
         <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--cyan)', marginBottom: '0.875rem', letterSpacing: '0.04em' }}>
-          ACCOMMODATION BLUEPRINT — AI OPERATIONS ROLE
+          ACCOMMODATION BLUEPRINT CHECKLIST — SOFTWARE / AI OPERATIONS ROLE
         </div>
 
         {[
-          { title: 'Screen-Reader Compatible Tools', desc: 'All monitoring dashboards must support NVDA/JAWS. Terminal access with screen-reader mode available.', icon: '♿' },
-          { title: 'Accessible Development Environment', desc: 'VS Code with accessibility extensions pre-configured. High contrast themes available.', icon: '💻' },
-          { title: 'Flexible Communication', desc: 'Asynchronous communication preferred. Written documentation for all verbal meetings. No required video calls.', icon: '💬' },
-          { title: 'Accessible Documentation', desc: 'All technical docs in accessible HTML. No image-only documentation. Alt text on all diagrams.', icon: '📄' },
-          { title: 'Flexible Assessment Format', desc: 'Practical trial available in extended-time or take-home format. No timed whiteboard interviews.', icon: '✍️' },
+          { title: 'Screen-Reader Compatible Tooling', desc: 'Ensure all monitoring dashboards support NVDA/JAWS. Terminal access with screen-reader mode pre-configured.', icon: '♿' },
+          { title: 'Accessible Development Environment', desc: 'VS Code with high contrast themes, screen magnification, and keyboard navigation shortcuts.', icon: '💻' },
+          { title: 'Flexible Communication Protocols', desc: 'Asynchronous communication preferred. Written documentation for meetings; mandatory transcriptions.', icon: '💬' },
+          { title: 'Accessible Documentation Standard', desc: 'All technical documentation in accessible HTML. Alt text on diagram nodes and flowcharts.', icon: '📄' },
+          { title: 'Flexible Assessment Format', desc: 'Take-home practical trials with flexible time windows rather than timed whiteboard pressure.', icon: '✍️' },
         ].map(item => (
           <div key={item.title} style={{
             display: 'flex', gap: '0.75rem', padding: '0.75rem', marginBottom: '0.5rem',
@@ -335,58 +507,7 @@ function AccessibilityAgent() {
   );
 }
 
-function BiasAudit() {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem', marginBottom: '0.5rem' }}>
-        {[
-          { label: 'Credential Bias', risk: 'High', scanned: 142, flagged: 23, color: 'var(--red)' },
-          { label: 'Career Gap Bias', risk: 'Medium', scanned: 142, flagged: 31, color: 'var(--amber)' },
-          { label: 'Geographic Bias', risk: 'Low', scanned: 142, flagged: 8, color: 'var(--green)' },
-          { label: 'Job Title Proxy', risk: 'Medium', scanned: 142, flagged: 19, color: 'var(--amber)' },
-        ].map(b => (
-          <div key={b.label} className="card-flat" style={{ padding: '0.875rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.375rem' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>{b.label}</span>
-              <span style={{
-                fontSize: '0.65rem', fontWeight: 700, padding: '0.1rem 0.375rem', borderRadius: 999,
-                background: `${b.color}15`, color: b.color,
-              }}>{b.risk} Risk</span>
-            </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              {b.flagged} / {b.scanned} decisions flagged for review
-            </div>
-            <div style={{ height: 4, background: 'var(--bg-elevated)', borderRadius: 999, marginTop: '0.5rem', overflow: 'hidden' }}>
-              <div style={{ width: `${(b.flagged / b.scanned) * 100}%`, height: '100%', background: b.color, borderRadius: 999 }} />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="card-flat" style={{ padding: '1rem' }}>
-        <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.75rem', letterSpacing: '0.04em' }}>
-          AUDIT PIPELINE
-        </div>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          {['AI Recommendation', 'Bias Audit', 'Potential Bias?', 'Human Review', 'Decision'].map((step, i, arr) => (
-            <div key={step} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <div style={{
-                padding: '0.375rem 0.625rem', borderRadius: 7, fontSize: '0.75rem', fontWeight: 600,
-                background: i === 2 ? 'rgba(245,158,11,0.15)' : i === 4 ? 'rgba(16,185,129,0.15)' : 'var(--bg-hover)',
-                color: i === 2 ? 'var(--amber)' : i === 4 ? 'var(--green)' : 'var(--text-secondary)',
-                border: `1px solid ${i === 2 ? 'rgba(245,158,11,0.25)' : i === 4 ? 'rgba(16,185,129,0.25)' : 'var(--border)'}`,
-              }}>
-                {step}
-              </div>
-              {i < arr.length - 1 && <ArrowRight size={12} style={{ color: 'var(--text-muted)' }} />}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
+// ─── MAIN WORKFORCE PAGE ────────────────────────────────────────
 export default function WorkforcePage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedTransition, setSelectedTransition] = useState<{ dept: string; from: string; to: string; readiness: number; employees: number } | null>(null);
@@ -398,12 +519,12 @@ export default function WorkforcePage() {
   const totalTransitions = mockWorkforceDepartments.reduce((s, d) => s + d.transitions.reduce((t, r) => t + r.employees, 0), 0);
 
   const tabs = [
-    { id: 'overview', label: 'Capability Map' },
+    { id: 'overview', label: 'Overview' },
+    { id: 'map', label: 'Workforce Capability Map' },
     { id: 'mobility', label: 'Internal Mobility' },
-    { id: 'equity', label: 'Equity Nudge' },
-    { id: 'fairness', label: 'Job Fairness' },
-    { id: 'accessibility', label: 'Accessibility' },
-    { id: 'bias', label: 'Bias Audit' },
+    { id: 'fairness', label: 'Job Fairness Agent' },
+    { id: 'equity', label: 'Equity Review' },
+    { id: 'accessibility', label: 'Accessibility Blueprints' },
   ];
 
   const handleCreateReskillingPlan = () => {
@@ -443,23 +564,23 @@ export default function WorkforcePage() {
         </motion.div>
       )}
 
-      {/* Metrics */}
+      {/* Headline Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
         {[
-          { label: 'Total Employees', value: totalEmployees.toLocaleString(), color: 'var(--blue-primary)', icon: <Users size={15} /> },
+          { label: 'Total Enterprise Workforce', value: totalEmployees.toLocaleString(), color: 'var(--blue-primary)', icon: <Users size={15} /> },
           { label: 'Avg AI Capability', value: `${avgAI}%`, color: 'var(--violet)', icon: <Brain size={15} /> },
           { label: 'Avg Cloud Capability', value: `${avgCloud}%`, color: 'var(--cyan)', icon: <TrendingUp size={15} /> },
-          { label: 'Transition Candidates', value: totalTransitions.toLocaleString(), color: 'var(--green)', icon: <Zap size={15} /> },
+          { label: 'High-Potential Transitions', value: totalTransitions.toLocaleString(), color: 'var(--green)', icon: <Zap size={15} /> },
         ].map(m => (
           <div key={m.label} className="metric-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: m.color }}>{m.label.slice(0,4) !== 'Tota' ? '' : ''}{m.icon}</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: m.color }}>{m.value}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: m.color }}>{m.icon}</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: m.color, marginTop: '0.2rem' }}>{m.value}</div>
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{m.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Tabs */}
+      {/* Navigation Tabs */}
       <div className="tab-nav" style={{ marginBottom: '1.25rem', width: 'fit-content' }}>
         {tabs.map(t => (
           <button key={t.id} className={`tab-item ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
@@ -471,49 +592,13 @@ export default function WorkforcePage() {
       <AnimatePresence mode="wait">
         {activeTab === 'overview' && (
           <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="card" style={{ padding: '1.25rem', overflowX: 'auto' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <div>
-                  <div className="section-title">Workforce Capability Heatmap</div>
-                  <div className="section-subtitle">Department × Capability — average proficiency scores</div>
-                </div>
-                <div style={{ display: 'flex', gap: '0.625rem', fontSize: '0.7rem' }}>
-                  {[{ color: '#10b981', l: '75+' }, { color: '#4f8ef7', l: '55-74' }, { color: '#f59e0b', l: '35-54' }, { color: '#ef4444', l: '<35' }].map(x => (
-                    <span key={x.l} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-muted)' }}>
-                      <span style={{ width: 10, height: 10, background: x.color, borderRadius: 2, display: 'inline-block', opacity: 0.7 }} />
-                      {x.l}%
-                    </span>
-                  ))}
-                </div>
-              </div>
+            <OverviewTab />
+          </motion.div>
+        )}
 
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Department</th>
-                    <th style={{ padding: '0.375rem 0.5rem', fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>👥</th>
-                    {capabilityKeys.map(k => (
-                      <th key={k} style={{ padding: '0.375rem 0.5rem', fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, textAlign: 'center' }}>{k}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockWorkforceDepartments.map((dept, i) => (
-                    <tr key={dept.id} style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                      <td style={{ padding: '0.5rem 0.5rem', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
-                        {dept.name}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.5rem', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-                        {dept.headcount.toLocaleString()}
-                      </td>
-                      {capabilityKeys.map(k => (
-                        <ScoreCell key={k} value={dept.capabilities[k] || 0} />
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        {activeTab === 'map' && (
+          <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <CapabilityMapTab />
           </motion.div>
         )}
 
@@ -576,22 +661,22 @@ export default function WorkforcePage() {
           </motion.div>
         )}
 
-        {activeTab === 'equity' && (
-          <motion.div key="equity" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="card" style={{ padding: '1.25rem' }}>
-              <div className="section-title" style={{ marginBottom: '0.375rem' }}>Equity Nudge</div>
-              <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Capability-based insights during candidate review. Humans always decide.</div>
-              <EquityNudge />
-            </div>
-          </motion.div>
-        )}
-
         {activeTab === 'fairness' && (
           <motion.div key="fairness" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="card" style={{ padding: '1.25rem' }}>
               <div className="section-title" style={{ marginBottom: '0.375rem' }}>Job Fairness Agent</div>
-              <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Rewrite credential proxies and exclusionary language with capability-based requirements.</div>
+              <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Rewrite credential proxies and exclusionary language with capability-based requirements. Human approval required.</div>
               <JobFairnessAgent />
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'equity' && (
+          <motion.div key="equity" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="card" style={{ padding: '1.25rem' }}>
+              <div className="section-title" style={{ marginBottom: '0.375rem' }}>Equity Review</div>
+              <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Capability-based insights during candidate review. Humans always decide.</div>
+              <EquityNudge />
             </div>
           </motion.div>
         )}
@@ -599,19 +684,9 @@ export default function WorkforcePage() {
         {activeTab === 'accessibility' && (
           <motion.div key="accessibility" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="card" style={{ padding: '1.25rem' }}>
-              <div className="section-title" style={{ marginBottom: '0.375rem' }}>Accessibility & Accommodation</div>
-              <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Tailored accommodation blueprints that enable candidates, not just filter for fit.</div>
+              <div className="section-title" style={{ marginBottom: '0.375rem' }}>Accessibility Blueprints</div>
+              <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Tailored accommodation blueprints that enable candidates in their role.</div>
               <AccessibilityAgent />
-            </div>
-          </motion.div>
-        )}
-
-        {activeTab === 'bias' && (
-          <motion.div key="bias" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="card" style={{ padding: '1.25rem' }}>
-              <div className="section-title" style={{ marginBottom: '0.375rem' }}>Fairness & Governance</div>
-              <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Bias detection, audit trails, and governance for fair hiring decisions.</div>
-              <BiasAudit />
             </div>
           </motion.div>
         )}

@@ -13,24 +13,30 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Area, AreaChart,
 } from 'recharts';
-import { mockMomentumData, mockActions, mockOpportunities, mockCapabilities } from '@/data/mockData';
+import { mockMomentumData, mockActions, mockOpportunities, getUserProfile, getUserCapabilities } from '@/data/mockData';
 import { formatDeadline } from '@/lib/utils';
 import type { Action } from '@/types';
 import { useAuth } from '@/lib/auth-context';
 
 function AnimatedNumber({ target, suffix = '', prefix = '', duration = 1200 }: { target: number; suffix?: string; prefix?: string; duration?: number }) {
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(target);
+
   useEffect(() => {
+    let animationFrameId: number;
     const start = Date.now();
     const frame = () => {
       const elapsed = Date.now() - start;
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
       setCurrent(Math.round(eased * target));
-      if (progress < 1) requestAnimationFrame(frame);
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(frame);
+      }
     };
-    requestAnimationFrame(frame);
+    animationFrameId = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(animationFrameId);
   }, [target, duration]);
+
   return <>{prefix}{current}{suffix}</>;
 }
 
@@ -63,6 +69,9 @@ export default function DashboardPage() {
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
   const [actionDoneMsg, setActionDoneMsg] = useState('');
 
+  const activeProfile = getUserProfile(user?.email);
+  const activeCapabilities = getUserCapabilities(user?.email);
+
   const topActions = actionsList.filter(a => !a.completed).slice(0, 4);
   const topOpps = mockOpportunities.slice(0, 3);
 
@@ -90,7 +99,7 @@ export default function DashboardPage() {
   const metrics = [
     {
       label: 'Capability Momentum',
-      value: 18,
+      value: activeProfile.capabilityMomentum || 22,
       suffix: '%',
       prefix: '+',
       sub: 'this month',
@@ -100,7 +109,7 @@ export default function DashboardPage() {
     },
     {
       label: 'Capability Twin',
-      value: 82,
+      value: activeProfile.capabilityTwinScore || 89,
       suffix: '%',
       sub: 'Verified',
       icon: <Brain size={16} />,
@@ -109,16 +118,16 @@ export default function DashboardPage() {
     },
     {
       label: 'Future Readiness',
-      value: 74,
+      value: activeProfile.futureReadiness || 86,
       suffix: '%',
-      sub: 'AI Ops trajectory',
+      sub: 'AI/FullStack trajectory',
       icon: <Target size={16} />,
       color: 'var(--violet)',
       href: '/capability',
     },
     {
       label: 'Opportunity Match',
-      value: 91,
+      value: activeProfile.opportunityMatch || 95,
       suffix: '%',
       sub: 'Best match',
       icon: <Radar size={16} />,
@@ -127,7 +136,7 @@ export default function DashboardPage() {
     },
     {
       label: 'Active Transitions',
-      value: 2,
+      value: activeProfile.activeTransitions || 3,
       sub: 'In progress',
       icon: <Zap size={16} />,
       color: 'var(--amber)',
@@ -140,8 +149,8 @@ export default function DashboardPage() {
       {/* Page Header */}
       <div className="page-header">
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="page-title">Good day, {user?.name || 'Priya'}. 👋</h1>
-          <p className="page-subtitle">Your career is moving forward. Here&apos;s what needs your attention.</p>
+          <h1 className="page-title">Good day, {user?.name || activeProfile.name}. 👋</h1>
+          <p className="page-subtitle">Your career is moving forward. Here&apos;s your capability momentum &amp; top priorities.</p>
         </motion.div>
       </div>
 
@@ -168,7 +177,7 @@ export default function DashboardPage() {
         </motion.div>
       )}
 
-      {/* Metric Cards */}
+      {/* Hero Metric Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
         {metrics.map((m, i) => (
           <motion.div
@@ -210,7 +219,7 @@ export default function DashboardPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <div>
                 <div className="section-title">Career Momentum</div>
-                <div className="section-subtitle">6-month capability & opportunity growth</div>
+                <div className="section-subtitle">6-month capability &amp; opportunity growth</div>
               </div>
               <div style={{ display: 'flex', gap: '1rem', fontSize: '0.7rem' }}>
                 {[
@@ -350,15 +359,15 @@ export default function DashboardPage() {
             style={{ padding: '1.25rem' }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.875rem' }}>
-              <div className="section-title">Top Capabilities</div>
+              <div className="section-title">Top Capabilities ({activeProfile.name.split(' ')[0]})</div>
               <Link href="/capability" className="btn-ghost" style={{ fontSize: '0.75rem' }}>
                 Twin <ChevronRight size={13} />
               </Link>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-              {mockCapabilities.slice(0, 6).map(cap => (
+              {activeCapabilities.slice(0, 6).map(cap => (
                 <div key={cap.id} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                  <span style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', width: 90, flexShrink: 0 }}>{cap.name}</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', width: 110, flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cap.name}</span>
                   <div className="progress-bar" style={{ flex: 1 }}>
                     <motion.div
                       className="progress-fill"
@@ -492,7 +501,7 @@ export default function DashboardPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={{ opacity: 0, scale: 1 }}
               style={{
                 width: '100%', maxWidth: 440,
                 background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)',

@@ -2,15 +2,17 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { mockUser } from '@/data/mockData';
+import { mockDevenUser, mockUser } from '@/data/mockData';
 
-export type UserRole = 'candidate' | 'employer';
+export type UserRole = 'candidate' | 'employer' | 'both';
+export type AppView = 'candidate' | 'employer';
 
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  activeView: AppView;
   avatar?: string;
   title?: string;
   org?: string;
@@ -19,41 +21,56 @@ export interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  loginAsCandidate: () => void;
+  loginAsDeven: () => void;
+  loginAsPriya: () => void;
   loginAsEmployer: () => void;
   loginCustom: (email: string, password?: string, role?: UserRole) => boolean;
   signup: (name: string, email: string, password?: string, role?: UserRole) => void;
+  resetPassword: (email: string) => Promise<boolean>;
   logout: () => void;
+  switchView: (view: AppView) => void;
   isAuthModalOpen: boolean;
-  openAuthModal: (initialTab?: 'demo' | 'login' | 'signup') => void;
+  openAuthModal: (initialTab?: 'demo' | 'login' | 'signup' | 'reset') => void;
   closeAuthModal: () => void;
-  authModalTab: 'demo' | 'login' | 'signup';
+  authModalTab: 'demo' | 'login' | 'signup' | 'reset';
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const candidateUser: AuthUser = {
+export const devenUser: AuthUser = {
+  id: mockDevenUser.id,
+  name: mockDevenUser.name,
+  email: mockDevenUser.email!,
+  role: 'both',
+  activeView: 'candidate',
+  title: 'Software Engineer & Innovator',
+  org: 'Chandigarh University · 3 Patents',
+};
+
+export const priyaUser: AuthUser = {
   id: mockUser.id,
   name: mockUser.name,
   email: 'priya.sharma@accesshire.ai',
   role: 'candidate',
+  activeView: 'candidate',
   title: 'AI Ops Candidate',
   org: 'Hubli Technology Circle',
 };
 
-const employerUser: AuthUser = {
+export const employerUser: AuthUser = {
   id: 'user-recruiter-sap',
   name: 'Marcus Vance',
   email: 'marcus.vance@sap.com',
   role: 'employer',
+  activeView: 'employer',
   title: 'Lead Talent Partner',
   org: 'SAP Workforce Intelligence',
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(candidateUser);
+  const [user, setUser] = useState<AuthUser | null>(devenUser);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<'demo' | 'login' | 'signup'>('demo');
+  const [authModalTab, setAuthModalTab] = useState<'demo' | 'login' | 'signup' | 'reset'>('demo');
   const router = useRouter();
 
   useEffect(() => {
@@ -63,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(JSON.parse(storedUser));
       }
     } catch {
-      // Fallback to default
+      // Fallback
     }
   }, []);
 
@@ -76,8 +93,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const loginAsCandidate = () => {
-    saveUserSession(candidateUser);
+  const loginAsDeven = () => {
+    saveUserSession(devenUser);
+    setIsAuthModalOpen(false);
+    router.push('/dashboard');
+  };
+
+  const loginAsPriya = () => {
+    saveUserSession(priyaUser);
     setIsAuthModalOpen(false);
     router.push('/dashboard');
   };
@@ -89,6 +112,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const loginCustom = (email: string, password?: string, role: UserRole = 'candidate') => {
+    const isDeven = email.toLowerCase().includes('deven') || email.toLowerCase().includes('goyaldeven');
+    if (isDeven) {
+      saveUserSession(devenUser);
+      setIsAuthModalOpen(false);
+      router.push('/dashboard');
+      return true;
+    }
+
     const isEmployer = role === 'employer' || email.includes('sap.com') || email.includes('enterprise');
     const newUser: AuthUser = isEmployer
       ? {
@@ -96,6 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           name: email.split('@')[0].replace('.', ' ').replace(/^./, str => str.toUpperCase()),
           email,
           role: 'employer',
+          activeView: 'employer',
           title: 'Workforce Director',
           org: 'Enterprise Talent Org',
         }
@@ -104,12 +136,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           name: email.split('@')[0].replace('.', ' ').replace(/^./, str => str.toUpperCase()),
           email,
           role: 'candidate',
+          activeView: 'candidate',
           title: 'Career OS User',
           org: 'Individual Practitioner',
         };
     saveUserSession(newUser);
     setIsAuthModalOpen(false);
-    router.push(newUser.role === 'employer' ? '/workforce' : '/dashboard');
+    router.push(newUser.activeView === 'employer' ? '/workforce' : '/dashboard');
     return true;
   };
 
@@ -119,6 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name,
       email,
       role,
+      activeView: role === 'employer' ? 'employer' : 'candidate',
       title: role === 'candidate' ? 'AI Candidate' : 'Talent Acquisition Manager',
       org: role === 'candidate' ? 'Individual' : 'Partner Enterprise',
     };
@@ -127,12 +161,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push(role === 'employer' ? '/workforce' : '/dashboard');
   };
 
+  const resetPassword = async (email: string): Promise<boolean> => {
+    // Password reset simulation / Supabase integration fallback
+    return new Promise(resolve => setTimeout(() => resolve(true), 800));
+  };
+
+  const switchView = (targetView: AppView) => {
+    if (!user) return;
+    const updatedUser = { ...user, activeView: targetView };
+    saveUserSession(updatedUser);
+    router.push(targetView === 'employer' ? '/workforce' : '/dashboard');
+  };
+
   const logout = () => {
     saveUserSession(null);
     router.push('/');
   };
 
-  const openAuthModal = (tab: 'demo' | 'login' | 'signup' = 'demo') => {
+  const openAuthModal = (tab: 'demo' | 'login' | 'signup' | 'reset' = 'demo') => {
     setAuthModalTab(tab);
     setIsAuthModalOpen(true);
   };
@@ -146,11 +192,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isAuthenticated: !!user,
-        loginAsCandidate,
+        loginAsDeven,
+        loginAsPriya,
         loginAsEmployer,
         loginCustom,
         signup,
+        resetPassword,
         logout,
+        switchView,
         isAuthModalOpen,
         openAuthModal,
         closeAuthModal,

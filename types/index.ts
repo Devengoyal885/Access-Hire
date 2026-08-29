@@ -11,6 +11,7 @@ export type EvidenceSource =
   | 'assessment'
   | 'work'
   | 'certification'
+  | 'patent'
   | 'self-reported';
 
 export interface EvidenceItem {
@@ -19,6 +20,7 @@ export interface EvidenceItem {
   date: string;
   confidence: number; // 0–100
   verified: boolean;
+  applicationNo?: string;
 }
 
 export interface CapabilityGrowthPoint {
@@ -40,13 +42,22 @@ export interface Capability {
   tags: string[];
 }
 
+export interface PatentItem {
+  id: string;
+  title: string;
+  applicationNo: string;
+  status: string;
+  year: string;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
-  age: number;
+  email?: string;
+  age?: number;
   location: string;
   education: string;
-  careerGap: string;
+  careerGap?: string;
   targetRole: string;
   capabilityMomentum: number;
   capabilityTwinScore: number;
@@ -54,6 +65,7 @@ export interface UserProfile {
   opportunityMatch: number;
   activeTransitions: number;
   capabilities: Capability[];
+  patents?: PatentItem[];
   avatar?: string;
 }
 
