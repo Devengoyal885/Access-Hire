@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2, Users, TrendingUp, Shield, AlertTriangle,
@@ -507,6 +507,191 @@ function AccessibilityAgent() {
   );
 }
 
+// ─── 6. BIAS AUDIT AGENT TAB ────────────────────────────────────
+function BiasAuditTab() {
+  const [loading, setLoading] = useState(false);
+  const [auditData, setAuditData] = useState<any>(null);
+  const [sourceTag, setSourceTag] = useState<'live' | 'fallback'>('live');
+  const [acknowledged, setAcknowledged] = useState<Record<string, boolean>>({});
+
+  const runAudit = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/agents/bias-audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      if (data.audit) {
+        setAuditData(data.audit);
+        setSourceTag(data.source === 'live' ? 'live' : 'fallback');
+      }
+    } catch (err) {
+      console.warn('Bias audit call error', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    runAudit();
+  }, []);
+
+  const handleAcknowledge = (id: string) => {
+    setAcknowledged(prev => ({ ...prev, [id]: true }));
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{
+          padding: '0.75rem 1rem',
+          background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)',
+          borderRadius: 8, fontSize: '0.775rem', color: 'var(--text-secondary)', flex: 1, marginRight: '1rem',
+        }}>
+          <strong style={{ color: 'var(--red)' }}>Bias Audit Agent:</strong> Monitors enterprise hiring pipelines for demographic, continuous employment, and geographic disparities. AI recommends flags; human reviewers evaluate and decide.
+        </div>
+        <button onClick={runAudit} disabled={loading} className="btn-secondary" style={{ fontSize: '0.75rem', flexShrink: 0 }}>
+          <RefreshCw size={13} className={loading ? 'spin' : ''} /> {loading ? 'Auditing...' : 'Re-Run Live Audit'}
+        </button>
+      </div>
+
+      {/* Parity Metrics Comparison Bars */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+        {/* Gap Parity */}
+        <div className="card-flat" style={{ padding: '1rem' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
+            Match Rate by Career Gap Length
+          </div>
+          {[
+            { label: '0 Years Gap', rate: 92, color: 'var(--green)' },
+            { label: '1–2 Years Gap', rate: 74, color: 'var(--blue-primary)' },
+            { label: '3+ Years Gap (Caregiving)', rate: 58, color: 'var(--red)' },
+          ].map(m => (
+            <div key={m.label} style={{ marginBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>
+                <span>{m.label}</span>
+                <span style={{ fontWeight: 700, color: m.color }}>{m.rate}%</span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${m.rate}%`, background: m.color }} />
+              </div>
+            </div>
+          ))}
+          <div style={{ fontSize: '0.675rem', color: 'var(--red)', marginTop: '0.5rem', fontWeight: 600 }}>
+            ⚠ Disparity Threshold Crossed: -34% for 3+ yr gap
+          </div>
+        </div>
+
+        {/* Education Tier Parity */}
+        <div className="card-flat" style={{ padding: '1rem' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
+            Match Rate by Education Credential
+          </div>
+          {[
+            { label: 'Tier-1 CS Degree (IIT/CU)', rate: 94, color: 'var(--green)' },
+            { label: 'State University Degree', rate: 79, color: 'var(--blue-primary)' },
+            { label: 'Self-Taught / Non-Traditional', rate: 68, color: 'var(--amber)' },
+          ].map(m => (
+            <div key={m.label} style={{ marginBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>
+                <span>{m.label}</span>
+                <span style={{ fontWeight: 700, color: m.color }}>{m.rate}%</span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${m.rate}%`, background: m.color }} />
+              </div>
+            </div>
+          ))}
+          <div style={{ fontSize: '0.675rem', color: 'var(--amber)', marginTop: '0.5rem', fontWeight: 600 }}>
+            ⚠ Credential Proxy Disparity: -26% for self-taught
+          </div>
+        </div>
+
+        {/* Location Parity */}
+        <div className="card-flat" style={{ padding: '1rem' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
+            Callback Rate by Location Tier
+          </div>
+          {[
+            { label: 'Tier-1 Metro (Bangalore/NCR)', rate: 91, color: 'var(--green)' },
+            { label: 'Tier-2 City (Chandigarh/Hubli)', rate: 82, color: 'var(--blue-primary)' },
+            { label: 'Tier-3 City (Lucknow/Dharwad)', rate: 71, color: 'var(--amber)' },
+          ].map(m => (
+            <div key={m.label} style={{ marginBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>
+                <span>{m.label}</span>
+                <span style={{ fontWeight: 700, color: m.color }}>{m.rate}%</span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${m.rate}%`, background: m.color }} />
+              </div>
+            </div>
+          ))}
+          <div style={{ fontSize: '0.675rem', color: 'var(--amber)', marginTop: '0.5rem', fontWeight: 600 }}>
+            ⚠ Geographic Bias Disparity: -20% for Tier-3 cities
+          </div>
+        </div>
+      </div>
+
+      {/* Audit Flags from Gemini Flash */}
+      {auditData && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Gemini Flash Bias Audit Findings ({auditData.auditFlags?.length || 0} Flags)
+            </div>
+            <span className={`badge ${sourceTag === 'live' ? 'badge-green' : 'badge-amber'}`}>
+              {sourceTag === 'live' ? '⚡ LIVE GEMINI 1.5 FLASH AUDIT' : '🛡️ CACHED MODEL'}
+            </span>
+          </div>
+
+          {auditData.auditFlags?.map((flag: any) => (
+            <div key={flag.id} className="card-flat" style={{
+              padding: '1rem', border: '1px solid rgba(239,68,68,0.2)',
+              background: 'rgba(239,68,68,0.04)', borderRadius: 10,
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.375rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <AlertTriangle size={15} style={{ color: 'var(--red)' }} />
+                  <span style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>{flag.title}</span>
+                </div>
+                <span className="badge badge-amber">{flag.category}</span>
+              </div>
+
+              <div style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '0.5rem' }}>
+                <strong>Empirical Finding:</strong> {flag.finding}
+              </div>
+
+              <div style={{
+                padding: '0.5rem 0.75rem', background: 'rgba(16,185,129,0.06)',
+                border: '1px solid rgba(16,185,129,0.2)', borderRadius: 6,
+                fontSize: '0.75rem', color: 'var(--green)', fontWeight: 500, marginBottom: '0.75rem',
+              }}>
+                <strong>Recommended HR Action:</strong> {flag.recommendation}
+              </div>
+
+              {!acknowledged[flag.id] ? (
+                <button
+                  className="btn-primary"
+                  style={{ fontSize: '0.725rem', padding: '0.3rem 0.75rem' }}
+                  onClick={() => handleAcknowledge(flag.id)}
+                >
+                  <CheckCircle2 size={13} /> Acknowledge &amp; Review Disparity
+                </button>
+              ) : (
+                <span style={{ fontSize: '0.725rem', fontWeight: 700, color: 'var(--green)', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                  <CheckCircle2 size={13} /> Acknowledged by Human HR Reviewer
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── MAIN WORKFORCE PAGE ────────────────────────────────────────
 export default function WorkforcePage() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -524,6 +709,7 @@ export default function WorkforcePage() {
     { id: 'mobility', label: 'Internal Mobility' },
     { id: 'fairness', label: 'Job Fairness Agent' },
     { id: 'equity', label: 'Equity Review' },
+    { id: 'bias-audit', label: 'Bias Audit Agent' },
     { id: 'accessibility', label: 'Accessibility Blueprints' },
   ];
 
@@ -677,6 +863,16 @@ export default function WorkforcePage() {
               <div className="section-title" style={{ marginBottom: '0.375rem' }}>Equity Review</div>
               <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Capability-based insights during candidate review. Humans always decide.</div>
               <EquityNudge />
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'bias-audit' && (
+          <motion.div key="bias-audit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="card" style={{ padding: '1.25rem' }}>
+              <div className="section-title" style={{ marginBottom: '0.375rem' }}>Bias Audit Agent</div>
+              <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Demographic &amp; continuity parity metrics across candidate pool. AI flags disparities for HR review.</div>
+              <BiasAuditTab />
             </div>
           </motion.div>
         )}

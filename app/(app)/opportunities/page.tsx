@@ -8,7 +8,7 @@ import {
   CheckCircle2, ArrowRight, ExternalLink, Brain,
   FileText, Target, Building2, Globe, Send, Upload,
 } from 'lucide-react';
-import { mockOpportunities, mockActions } from '@/data/mockData';
+import { mockOpportunities, mockActions, getUserCapabilities } from '@/data/mockData';
 import type { Opportunity, OpportunityType } from '@/types';
 import { formatDeadline, sleep } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
@@ -255,19 +255,56 @@ function OpportunitiesContent() {
   const { user } = useAuth();
   const [selectedType, setSelectedType] = useState<OpportunityType | 'all'>('all');
   const [remoteOnly, setRemoteOnly] = useState(false);
+  const [oppsList, setOppsList] = useState<Opportunity[]>(mockOpportunities);
   const [selectedOpp, setSelectedOpp] = useState<Opportunity | null>(mockOpportunities[0]);
   const [sortBy, setSortBy] = useState<'match' | 'deadline'>('match');
   const [applyingOpp, setApplyingOpp] = useState<Opportunity | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [appliedMsg, setAppliedMsg] = useState('');
   const [customPitch, setCustomPitch] = useState('');
+  const [recalculating, setRecalculating] = useState(false);
+  const [liveMatchTag, setLiveMatchTag] = useState<string>('');
 
   const allTypes: (OpportunityType | 'all')[] = ['all', 'job', 'paid-internship', 'internship', 'hackathon', 'fellowship', 'scholarship', 'research'];
 
-  const filtered = mockOpportunities
+  const filtered = oppsList
     .filter(o => selectedType === 'all' || o.type === selectedType)
     .filter(o => !remoteOnly || o.remote)
     .sort((a, b) => sortBy === 'match' ? b.matchScore - a.matchScore : new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+
+  const handleLiveRescore = async () => {
+    if (!selectedOpp) return;
+    setRecalculating(true);
+    try {
+      const res = await fetch('/api/agents/opportunity-match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          capabilities: getUserCapabilities(user?.email),
+          opportunityTitle: selectedOpp.title,
+          opportunityRequirements: selectedOpp.description,
+        }),
+      });
+      const data = await res.json();
+      if (data.match) {
+        const updatedOpp = {
+          ...selectedOpp,
+          matchScore: data.match.overallMatch,
+          capabilityFit: data.match.capabilityFit,
+          futureFit: data.match.futureFit,
+          evidenceFit: data.match.evidenceFit,
+          resumeFit: data.match.resumeFit,
+        };
+        setSelectedOpp(updatedOpp);
+        setOppsList(prev => prev.map(o => o.id === updatedOpp.id ? updatedOpp : o));
+        setLiveMatchTag(`Evaluated via Gemini Flash (${data.source.toUpperCase()})`);
+      }
+    } catch (err) {
+      console.warn('Live rescore error', err);
+    } finally {
+      setRecalculating(false);
+    }
+  };
 
   const handleConfirmApply = async () => {
     if (!applyingOpp) return;
@@ -283,8 +320,27 @@ function OpportunitiesContent() {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">Opportunity Radar</h1>
-        <p className="page-subtitle">Opportunities matched to your capabilities, goals and trajectory — not just keywords.</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <h1 className="page-title">Opportunity Radar</h1>
+            <p className="page-subtitle">Opportunities matched to your live capabilities, goals and trajectory — not just keywords.</p>
+          </div>
+          {selectedOpp && (
+            <button
+              onClick={handleLiveRescore}
+              disabled={recalculating}
+              className="btn-secondary"
+              style={{ fontSize: '0.75rem', borderColor: 'var(--blue-primary)', color: 'var(--blue-primary)' }}
+            >
+              <Zap size={13} /> {recalculating ? 'Calling Gemini...' : 'Re-Evaluate Match via Gemini Flash'}
+            </button>
+          )}
+        </div>
+        {liveMatchTag && (
+          <div style={{ fontSize: '0.7rem', color: 'var(--green)', fontWeight: 700, marginTop: '0.375rem' }}>
+            ⚡ {liveMatchTag}
+          </div>
+        )}
       </div>
 
       {appliedMsg && (

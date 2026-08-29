@@ -23,6 +23,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   loginAsDeven: () => void;
   loginAsPriya: () => void;
+  loginAsSunita: () => void;
   loginAsEmployer: () => void;
   loginCustom: (email: string, password?: string, role?: UserRole) => boolean;
   signup: (name: string, email: string, password?: string, role?: UserRole) => void;
@@ -55,6 +56,16 @@ export const priyaUser: AuthUser = {
   activeView: 'candidate',
   title: 'AI Ops Candidate',
   org: 'Hubli Technology Circle',
+};
+
+export const sunitaUser: AuthUser = {
+  id: 'user-sunita',
+  name: 'Sunita Verma',
+  email: 'sunita.verma@accesshire.ai',
+  role: 'candidate',
+  activeView: 'candidate',
+  title: 'AI Ops & Care Logistics Candidate',
+  org: 'Lucknow Caregiver Archetype (3-yr Gap)',
 };
 
 export const employerUser: AuthUser = {
@@ -105,6 +116,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push('/dashboard');
   };
 
+  const loginAsSunita = () => {
+    saveUserSession(sunitaUser);
+    setIsAuthModalOpen(false);
+    router.push('/dashboard');
+  };
+
   const loginAsEmployer = () => {
     saveUserSession(employerUser);
     setIsAuthModalOpen(false);
@@ -115,6 +132,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isDeven = email.toLowerCase().includes('deven') || email.toLowerCase().includes('goyaldeven');
     if (isDeven) {
       saveUserSession(devenUser);
+      setIsAuthModalOpen(false);
+      router.push('/dashboard');
+      return true;
+    }
+
+    if (email.toLowerCase().includes('sunita')) {
+      saveUserSession(sunitaUser);
       setIsAuthModalOpen(false);
       router.push('/dashboard');
       return true;
@@ -162,7 +186,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetPassword = async (email: string): Promise<boolean> => {
-    // Password reset simulation / Supabase integration fallback
     return new Promise(resolve => setTimeout(() => resolve(true), 800));
   };
 
@@ -194,6 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         loginAsDeven,
         loginAsPriya,
+        loginAsSunita,
         loginAsEmployer,
         loginCustom,
         signup,

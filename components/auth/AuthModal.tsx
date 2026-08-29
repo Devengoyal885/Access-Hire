@@ -12,6 +12,7 @@ export default function AuthModal() {
     authModalTab,
     loginAsDeven,
     loginAsPriya,
+    loginAsSunita,
     loginAsEmployer,
     loginCustom,
     signup,
@@ -243,6 +244,49 @@ export default function AuthModal() {
                       </div>
                     </div>
                     <ArrowRight size={16} style={{ color: 'var(--green)' }} />
+                  </div>
+                </div>
+
+                {/* Sunita Verma (Lucknow Caregiver Archetype) */}
+                <div
+                  className="card-flat"
+                  style={{
+                    padding: '0.875rem 1rem',
+                    cursor: 'pointer',
+                    border: '1px solid rgba(245,158,11,0.35)',
+                    background: 'rgba(245,158,11,0.06)',
+                    borderRadius: 10,
+                    transition: 'all 0.15s',
+                  }}
+                  onClick={loginAsSunita}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #f59e0b, #ec4899)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: 800,
+                      fontSize: '1rem',
+                    }}>
+                      S
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                          Sunita Verma (Finale Brief Persona)
+                        </span>
+                        <span className="badge badge-amber">Caregiver Archetype</span>
+                      </div>
+                      <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                        sunita.verma@accesshire.ai · 3-Yr Caregiving Break · Lucknow
+                      </div>
+                    </div>
+                    <ArrowRight size={16} style={{ color: 'var(--amber)' }} />
                   </div>
                 </div>
 

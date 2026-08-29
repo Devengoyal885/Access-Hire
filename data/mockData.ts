@@ -240,9 +240,109 @@ export const mockDevenUser: UserProfile = {
   patents: mockDevenPatents,
 };
 
+export const mockSunitaCapabilities: Capability[] = [
+  {
+    id: 'cap-sunita-care',
+    name: 'Healthcare & Patient Care Management',
+    category: 'leadership',
+    proficiency: 91,
+    evidenceConfidence: 94,
+    independent: 90,
+    aiAssisted: 88,
+    recency: 'high',
+    evidence: [
+      { source: 'work', label: '3-Year Primary Caregiver for Family & Elder Care (Lucknow)', date: '2023-2026', confidence: 95, verified: true },
+      { source: 'work', label: 'Medical Scheduling & Healthcare Logistics', date: '2025-06', confidence: 92, verified: true },
+    ],
+    growth: [
+      { year: 2023, score: 65 },
+      { year: 2024, score: 80 },
+      { year: 2026, score: 91 },
+    ],
+    tags: ['healthcare', 'patient-care', 'logistics'],
+  },
+  {
+    id: 'cap-sunita-coord',
+    name: 'Community Coordination & Logistics',
+    category: 'leadership',
+    proficiency: 88,
+    evidenceConfidence: 90,
+    independent: 86,
+    aiAssisted: 85,
+    recency: 'high',
+    evidence: [
+      { source: 'work', label: 'Lucknow Neighbourhood Support Network Coordinator', date: '2024-11', confidence: 91, verified: true },
+    ],
+    growth: [
+      { year: 2024, score: 72 },
+      { year: 2025, score: 82 },
+      { year: 2026, score: 88 },
+    ],
+    tags: ['coordination', 'logistics', 'community'],
+  },
+  {
+    id: 'cap-sunita-data',
+    name: 'Data Entry & Analytics',
+    category: 'technical',
+    proficiency: 80,
+    evidenceConfidence: 84,
+    independent: 76,
+    aiAssisted: 88,
+    recency: 'high',
+    evidence: [
+      { source: 'project', label: 'Family & Medical Expense Tracking System (Excel/Python)', date: '2025-08', confidence: 86, verified: true },
+    ],
+    growth: [
+      { year: 2024, score: 50 },
+      { year: 2025, score: 68 },
+      { year: 2026, score: 80 },
+    ],
+    tags: ['excel', 'data', 'analytics'],
+  },
+  {
+    id: 'cap-sunita-python',
+    name: 'Self-Taught Python & Automation',
+    category: 'technical',
+    proficiency: 74,
+    evidenceConfidence: 78,
+    independent: 68,
+    aiAssisted: 86,
+    recency: 'high',
+    evidence: [
+      { source: 'github', label: 'Python Automation Scripts', date: '2025-10', confidence: 80, verified: true },
+    ],
+    growth: [
+      { year: 2024, score: 35 },
+      { year: 2025, score: 58 },
+      { year: 2026, score: 74 },
+    ],
+    tags: ['python', 'automation', 'scripting'],
+  },
+];
+
+export const mockSunitaUser: UserProfile = {
+  id: 'user-sunita',
+  name: 'Sunita Verma',
+  email: 'sunita.verma@accesshire.ai',
+  age: 28,
+  location: 'Lucknow, Uttar Pradesh, India',
+  education: 'B.Com & Self-Taught Python Certificate',
+  careerGap: '3 years (Caregiving Break)',
+  targetRole: 'AI Operations & Care Logistics Specialist',
+  capabilityMomentum: 24,
+  capabilityTwinScore: 84,
+  futureReadiness: 79,
+  opportunityMatch: 93,
+  activeTransitions: 2,
+  capabilities: mockSunitaCapabilities,
+};
+
 export function getUserProfile(identifier?: string): UserProfile {
   if (!identifier) return mockDevenUser;
   const lower = identifier.toLowerCase();
+  if (lower.includes('sunita')) {
+    return { ...mockSunitaUser, capabilities: mockSunitaCapabilities };
+  }
   if (lower.includes('priya')) {
     return { ...mockUser, capabilities: mockCapabilities };
   }
@@ -250,7 +350,12 @@ export function getUserProfile(identifier?: string): UserProfile {
 }
 
 export function getUserCapabilities(identifier?: string): Capability[] {
-  if (identifier && identifier.toLowerCase().includes('priya')) {
+  if (!identifier) return mockDevenCapabilities;
+  const lower = identifier.toLowerCase();
+  if (lower.includes('sunita')) {
+    return mockSunitaCapabilities;
+  }
+  if (lower.includes('priya')) {
     return mockCapabilities;
   }
   return mockDevenCapabilities;

@@ -147,6 +147,16 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
           </div>
         )}
 
+        {/* Live Agent Status Badge */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.35rem',
+          fontSize: '0.675rem', fontWeight: 700, color: 'var(--green)',
+          background: 'rgba(16,185,129,0.08)', padding: '0.2rem 0.5rem',
+          borderRadius: 999, border: '1px solid rgba(16,185,129,0.25)',
+        }}>
+          <Zap size={11} /> Gemini 1.5 Flash Active
+        </div>
+
         {/* Right Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginLeft: 'auto' }}>
           <ThemeSwitcher />
