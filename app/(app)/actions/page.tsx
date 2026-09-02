@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckSquare, Mail, Brain, Zap, Award,
@@ -39,7 +40,7 @@ const emailCatColor: Record<string, string> = {
   general: 'var(--text-muted)',
 };
 
-function ActionCard({ action, onComplete }: { action: Action; onComplete: (id: string) => void }) {
+function ActionCard({ action, onComplete, onAct }: { action: Action; onComplete: (id: string) => void; onAct: (action: Action) => void }) {
   const agentBadgeColor: Record<string, string> = {
     SD: '#3b82f6', // Skills Discovery
     MI: '#8b5cf6', // Market Intelligence
@@ -124,9 +125,13 @@ function ActionCard({ action, onComplete }: { action: Action; onComplete: (id: s
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', alignItems: 'flex-end', flexShrink: 0 }}>
-          {!action.completed && (
+          {!action.completed ? (
             <>
-              <button className="btn-primary" style={{ fontSize: '0.7rem', padding: '0.25rem 0.625rem' }}>
+              <button
+                className="btn-primary"
+                style={{ fontSize: '0.7rem', padding: '0.25rem 0.625rem', cursor: 'pointer' }}
+                onClick={() => onAct(action)}
+              >
                 Act <ArrowRight size={11} />
               </button>
               <button
@@ -137,8 +142,7 @@ function ActionCard({ action, onComplete }: { action: Action; onComplete: (id: s
                 Done ✓
               </button>
             </>
-          )}
-          {action.completed && (
+          ) : (
             <span style={{ fontSize: '0.7rem', color: 'var(--green)', fontWeight: 600 }}>Completed</span>
           )}
         </div>
@@ -334,10 +338,13 @@ function EmailCard({ email, onCreateAction }: { email: Email; onCreateAction: (e
 
 export default function ActionsPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [actions, setActions] = useState<Action[]>(() => getUserActions(user?.email));
   const [activeTab, setActiveTab] = useState<'actions' | 'emails'>('actions');
   const [filter, setFilter] = useState<string>('all');
   const [emailCreated, setEmailCreated] = useState<string | null>(null);
+  const [activeActionModal, setActiveActionModal] = useState<Action | null>(null);
+  const [actDoneToast, setActDoneToast] = useState('');
 
   useEffect(() => {
     setActions(getUserActions(user?.email));
@@ -345,6 +352,20 @@ export default function ActionsPage() {
 
   const completeAction = (id: string) => {
     setActions(prev => prev.map(a => a.id === id ? { ...a, completed: true } : a));
+  };
+
+  const handleAct = (action: Action) => {
+    if (action.category === 'application') {
+      router.push('/opportunities');
+    } else if (action.category === 'assessment') {
+      router.push('/capability?tab=trial');
+    } else if (action.category === 'interview') {
+      router.push('/workspace');
+    } else if (action.category === 'learning') {
+      router.push('/capability');
+    } else {
+      setActiveActionModal(action);
+    }
   };
 
   const createActionFromEmail = (email: Email) => {
@@ -381,6 +402,22 @@ export default function ActionsPage() {
         <h1 className="page-title">Action Center</h1>
         <p className="page-subtitle">Turn opportunities, emails, learning and career events into one intelligent queue.</p>
       </div>
+
+      {actDoneToast && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            padding: '0.75rem 1rem', marginBottom: '1rem',
+            background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)',
+            borderRadius: 8, display: 'flex', alignItems: 'center', gap: '0.5rem',
+            fontSize: '0.825rem', fontWeight: 600, color: 'var(--green)',
+          }}
+        >
+          <CheckCircle2 size={16} />
+          {actDoneToast}
+        </motion.div>
+      )}
 
       {/* Stats */}
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem' }}>
@@ -457,7 +494,7 @@ export default function ActionsPage() {
                 </div>
               ) : (
                 filteredActions.map(action => (
-                  <ActionCard key={action.id} action={action} onComplete={completeAction} />
+                  <ActionCard key={action.id} action={action} onComplete={completeAction} onAct={handleAct} />
                 ))
               )}
             </AnimatePresence>
@@ -470,13 +507,87 @@ export default function ActionsPage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {completedActions.map(action => (
-                  <ActionCard key={action.id} action={action} onComplete={() => {}} />
+                  <ActionCard key={action.id} action={action} onComplete={() => {}} onAct={handleAct} />
                 ))}
               </div>
             </div>
           )}
         </div>
       )}
+
+      {/* Action Execution Modal */}
+      <AnimatePresence>
+        {activeActionModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 1000,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
+              padding: '1rem',
+            }}
+            onClick={() => setActiveActionModal(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              style={{
+                width: '100%', maxWidth: 500,
+                background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)',
+                borderRadius: 16, padding: '1.5rem', boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>{activeActionModal.title}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                    {activeActionModal.agentName || 'Adaptive Career Agent'}
+                  </div>
+                </div>
+                <button onClick={() => setActiveActionModal(null)} className="btn-ghost" style={{ padding: '0.3rem' }}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div style={{
+                padding: '0.875rem', borderRadius: 8, background: 'rgba(79,142,247,0.08)',
+                border: '1px solid rgba(79,142,247,0.2)', marginBottom: '1rem', fontSize: '0.8rem',
+                color: 'var(--text-secondary)', lineHeight: 1.5,
+              }}>
+                {activeActionModal.description}
+              </div>
+
+              {activeActionModal.microProjectFraming && (
+                <div style={{ marginBottom: '1rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  <strong>Micro-Project Objective:</strong> {activeActionModal.microProjectFraming}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.25rem' }}>
+                <button className="btn-ghost" style={{ flex: 1, border: '1px solid var(--border)' }} onClick={() => setActiveActionModal(null)}>
+                  Close
+                </button>
+                <button
+                  className="btn-primary"
+                  style={{ flex: 2, justifyContent: 'center' }}
+                  onClick={() => {
+                    completeAction(activeActionModal.id);
+                    setActDoneToast(`Action "${activeActionModal.title}" executed & completed!`);
+                    setActiveActionModal(null);
+                    setTimeout(() => setActDoneToast(''), 4000);
+                  }}
+                >
+                  <CheckCircle2 size={14} /> Complete Action Now
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {activeTab === 'emails' && (
         <div>

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2, Users, TrendingUp, Shield, AlertTriangle,
   CheckCircle2, ArrowRight, ChevronRight, Brain,
-  FileText, Zap, Eye, Target, Accessibility, X, Check, Search, Filter, RefreshCw,
+  FileText, Zap, Eye, Target, Accessibility, X, Check, Search, Filter, RefreshCw, Sparkles,
 } from 'lucide-react';
 import { mockWorkforceDepartments, mockEquityCandidates, mockFutureSignals } from '@/data/mockData';
 import { sleep } from '@/lib/utils';
@@ -692,11 +693,27 @@ function BiasAuditTab() {
   );
 }
 
-// ─── MAIN WORKFORCE PAGE ────────────────────────────────────────
-export default function WorkforcePage() {
-  const [activeTab, setActiveTab] = useState('overview');
+// ─── MAIN WORKFORCE CONTENT ─────────────────────────────────────
+function WorkforceContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab') || 'overview';
+
+  const [activeTab, setActiveTab] = useState(tabParam);
   const [selectedTransition, setSelectedTransition] = useState<{ dept: string; from: string; to: string; readiness: number; employees: number } | null>(null);
   const [planCreatedMsg, setPlanCreatedMsg] = useState('');
+
+  // Sync tab with URL search parameter
+  useEffect(() => {
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
+
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    router.replace(`/workforce?tab=${newTab}`, { scroll: false });
+  };
 
   const totalEmployees = mockWorkforceDepartments.reduce((s, d) => s + d.headcount, 0);
   const avgAI = Math.round(mockWorkforceDepartments.reduce((s, d) => s + (d.capabilities['AI / ML'] || 0), 0) / mockWorkforceDepartments.length);
@@ -759,22 +776,29 @@ export default function WorkforcePage() {
           { label: 'High-Potential Transitions', value: totalTransitions.toLocaleString(), color: 'var(--green)', icon: <Zap size={15} /> },
         ].map(m => (
           <div key={m.label} className="metric-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: m.color }}>{m.icon}</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: m.color, marginTop: '0.2rem' }}>{m.value}</div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{m.label}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+              {m.icon} {m.label}
+            </div>
+            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: m.color, marginTop: '0.2rem' }}>{m.value}</div>
           </div>
         ))}
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="tab-nav" style={{ marginBottom: '1.25rem', width: 'fit-content' }}>
+      {/* Tab Nav */}
+      <div className="tab-nav" style={{ marginBottom: '1.25rem', overflowX: 'auto', maxWidth: '100%' }}>
         {tabs.map(t => (
-          <button key={t.id} className={`tab-item ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
+          <button
+            key={t.id}
+            className={`tab-item ${activeTab === t.id ? 'active' : ''}`}
+            onClick={() => handleTabChange(t.id)}
+            id={`tab-btn-${t.id}`}
+          >
             {t.label}
           </button>
         ))}
       </div>
 
+      {/* Tab Panels */}
       <AnimatePresence mode="wait">
         {activeTab === 'overview' && (
           <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -784,19 +808,43 @@ export default function WorkforcePage() {
 
         {activeTab === 'map' && (
           <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <CapabilityMapTab />
+            <div className="card" style={{ padding: '1.25rem' }}>
+              <div className="section-title" style={{ marginBottom: '0.375rem' }}>Workforce Capability Map</div>
+              <div className="section-subtitle" style={{ marginBottom: '1rem' }}>Capability proficiency by department</div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Department</th>
+                      <th style={{ textAlign: 'center', padding: '0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>Headcount</th>
+                      {capabilityKeys.map(k => (
+                        <th key={k} style={{ textAlign: 'center', padding: '0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>{k}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mockWorkforceDepartments.map(dept => (
+                      <tr key={dept.name} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                        <td style={{ padding: '0.625rem 0.75rem', fontWeight: 600 }}>{dept.name}</td>
+                        <td style={{ padding: '0.625rem 0.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>{dept.headcount.toLocaleString()}</td>
+                        {capabilityKeys.map(k => (
+                          <ScoreCell key={k} value={dept.capabilities[k] || 0} />
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </motion.div>
         )}
 
         {activeTab === 'mobility' && (
           <motion.div key="mobility" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="card" style={{ padding: '1.25rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <div>
-                  <div className="section-title">Internal Mobility Engine</div>
-                  <div className="section-subtitle">Employees ready to transition to high-demand roles internally</div>
-                </div>
-              </div>
+              <div className="section-title" style={{ marginBottom: '0.375rem' }}>Internal Mobility Opportunities</div>
+              <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Employees ready for high-demand transitions based on current capability twins</div>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                 {mockWorkforceDepartments.flatMap(dept =>
                   dept.transitions.map(t => ({
@@ -860,7 +908,7 @@ export default function WorkforcePage() {
         {activeTab === 'equity' && (
           <motion.div key="equity" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="card" style={{ padding: '1.25rem' }}>
-              <div className="section-title" style={{ marginBottom: '0.375rem' }}>Equity Review</div>
+              <div className="section-title" style={{ marginBottom: '0.375rem' }}>Equity Review &amp; Gap Mitigation</div>
               <div className="section-subtitle" style={{ marginBottom: '1.25rem' }}>Capability-based insights during candidate review. Humans always decide.</div>
               <EquityNudge />
             </div>
@@ -971,5 +1019,13 @@ export default function WorkforcePage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function WorkforcePage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading Workforce Console...</div>}>
+      <WorkforceContent />
+    </Suspense>
   );
 }

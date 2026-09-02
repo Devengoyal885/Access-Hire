@@ -6,9 +6,10 @@ import { useSearchParams } from 'next/navigation';
 import {
   Sparkles, Send, Brain, ChevronDown, Copy,
   CheckCircle2, Zap, Shield, X, Package,
-  ArrowRight, Eye, Share2, Download,
+  ArrowRight, Eye, Share2, Download, Check, FileText,
 } from 'lucide-react';
-import { mockAIResponses } from '@/data/mockData';
+import { mockAIResponses, getUserProfile, getUserCapabilities, getUserOpportunities } from '@/data/mockData';
+import { useAuth } from '@/lib/auth-context';
 import type { AIProvider, ChatMessage, ContextCapsule } from '@/types';
 import { sleep } from '@/lib/utils';
 
@@ -232,26 +233,147 @@ function CapsuleGenerator({ onClose }: { onClose: () => void }) {
 function WorkspaceContent() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
+  const { user } = useAuth();
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'sys-1',
-      role: 'system',
-      content: 'Context loaded: AI Operations Internship · Capability Twin 82% · Target: AI Ops Engineer · 2 capability gaps identified',
-      provider: 'auto',
-      timestamp: new Date(Date.now() - 60000).toISOString(),
-    },
-  ]);
+  const profile = getUserProfile(user?.email);
+  const capabilities = getUserCapabilities(user?.email);
+  const opportunities = getUserOpportunities(user?.email);
+  const topOpp = opportunities[0];
+
+  const initialSysMessage: ChatMessage = {
+    id: 'sys-1',
+    role: 'system',
+    content: `Context loaded: ${profile.name} (${profile.title}) · Capability Twin ${profile.capabilityTwinScore}% · ${profile.patents ? `${profile.patents.length} Patents Registered` : '3-Year Gap Mitigated'} · Target: ${topOpp ? topOpp.title : 'AI Systems Architect'} · 0 Cross-Contamination Verified`,
+    provider: 'auto',
+    timestamp: new Date(Date.now() - 60000).toISOString(),
+  };
+
+  const isDeven = user?.email === 'deven@accesshire.dev' || (!user?.email && profile.name.includes('Deven'));
+
+  const personaPrompts = isDeven ? [
+    { label: 'How to pitch my 20+ patents in NVIDIA LLM interview?', key: 'patents-pitch' },
+    { label: 'Technical architecture deep-dive for MailIQ & Cogniflow', key: 'arch-deepdive' },
+    { label: 'Fastest pathway to Principal AI Systems Architect', key: 'principal-path' },
+  ] : [
+    { label: 'Prepare me for this AI Operations interview', key: 'interview-prep' },
+    { label: 'Help me optimize my resume for this role', key: 'resume-help' },
+    { label: 'What capabilities should I focus on closing?', key: 'capability-question' },
+  ];
+
+  const [messages, setMessages] = useState<ChatMessage[]>([initialSysMessage]);
   const [input, setInput] = useState('');
   const [provider, setProvider] = useState<AIProvider>('auto');
   const [loading, setLoading] = useState(false);
   const [showCapsule, setShowCapsule] = useState(tabParam === 'capsule');
   const [activeTab, setActiveTab] = useState<'chat' | 'router'>('chat');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMessages([
+      {
+        id: `sys-${Date.now()}`,
+        role: 'system',
+        content: `Context loaded: ${profile.name} (${profile.title}) · Capability Twin ${profile.capabilityTwinScore}% · ${profile.patents ? `${profile.patents.length} Patents Registered` : 'Evidence Grounded'} · Target: ${topOpp ? topOpp.title : 'AI Systems Architect'}`,
+        provider: 'auto',
+        timestamp: new Date().toISOString(),
+      }
+    ]);
+  }, [user?.email, profile.name]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard?.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const generateRichResponse = (query: string, providerName: string): string => {
+    const q = query.toLowerCase();
+
+    if (isDeven) {
+      if (q.includes('patent') || q.includes('pitch') || q.includes('nvidia') || q.includes('interview')) {
+        return `### 🎯 Strategic Pitch: Leveraging 21 Patents for NVIDIA AI Systems
+
+**Core Narrative:** Ground your capability in verified intellectual property and full-stack execution rather than theoretical knowledge.
+
+#### 1. The Intellectual Property Pillar
+• **21 Filed/Published Patents** (Indian Patent Office: 202611092508, 202611101525, 202611068506) demonstrate proven ability to invent end-to-end architectures in **Wearable AI, Autonomous Edge Sensing, and Real-Time Signal Processing**.
+• Emphasize your **NVIDIA LLM Application Developer** certification and **Vibe Coding 2026 2nd Place distinction (out of 676 national teams)** as empirical proof of velocity.
+
+#### 2. High-Yield Interview Simulation (STAR Method)
+**Question:** *"How do you design scalable LLM systems that maintain low latency under concurrent load?"*
+• **Situation:** Built **MailIQ** and **Cogniflow AI** to process high-throughput semantic embeddings with minimal compute overhead.
+• **Task:** Eliminate latency bottlenecks during multi-agent context retrieval and token generation.
+• **Action:** Deployed quantization-aware fine-tuning, vector caching with FAISS/Pinecone, and asynchronous worker orchestration via FastAPI.
+• **Result:** Reduced median response latency by 68% while sustaining 99.4% factual accuracy across 5,000+ benchmark requests.
+
+#### 3. Recommended Next Best Actions
+1. ✅ Review the **NVIDIA AI Systems Architecture Fellow** application on the Opportunity Radar (98% match).
+2. 📄 Export your verified PDF resume from **Resume Studio** with all 21 patent disclosures embedded.`;
+      }
+
+      if (q.includes('arch') || q.includes('mailiq') || q.includes('cogniflow') || q.includes('code')) {
+        return `### 🏗️ Technical Architecture: MailIQ & Cogniflow AI
+
+**Overview:** High-performance distributed AI architecture combining streaming LLM inference with vector memory.
+
+\`\`\`typescript
+// Distributed Semantic Ingestion Pipeline
+interface PipelineArchitecture {
+  ingestion: "FastAPI Async Worker Pool";
+  embeddingModel: "sentence-transformers/all-mpnet-base-v2 (768-dim)";
+  vectorStore: "HNSW Indexed Memory Capsule";
+  orchestrator: "Multi-Agent Consensus (SD, MI, LP)";
+  telemetry: "Real-Time Confidence & Parity Audit Trail";
+}
+\`\`\`
+
+#### Key Architectural Differentiators:
+1. **Context Capsule Serialization:** Compresses 42,800 tokens to 2,100 tokens (95% efficiency) with zero semantic drift.
+2. **Deterministic Verification:** Enforces a 4-step practical sandbox evaluation before updating capability scores.
+3. **Patent Disclosures:** Backed by registered filings on autonomous adaptive edge computing and context-aware routing.`;
+      }
+
+      return `### 🚀 Capability Analysis & Career Acceleration Plan
+
+**Profile Context:** ${profile.name} · ${profile.title} · Twin Score: **${profile.capabilityTwinScore}%**
+
+#### 📊 Current Capability Strengths:
+• **AI Systems & LLM Architecture:** 98% (Verified via NVIDIA Certification & 21 Patents)
+• **Full-Stack Engineering & Fast Prototyping:** 94% (Vibe Coding 2nd Place / 676 Teams)
+• **Algorithm Design & Problem Solving:** 92% (Chandigarh Univ CGPA 8.21, Kargil Distinction)
+
+#### ⚡ Actionable 3-Step Strategy:
+1. **Target Opportunity:** Submit application to **NVIDIA AI Systems Architecture Fellow** (Deadline: 15 Sept 2026).
+2. **Micro-Project:** Complete SAP BTP AI Core integration micro-task to expand enterprise readiness.
+3. **Audit Trail:** Maintain full transparency via the built-in Multi-Agent Telemetry pipeline.`;
+    }
+
+    // Priya / Default
+    if (q.includes('interview')) return mockAIResponses['interview-prep'];
+    if (q.includes('resume')) return mockAIResponses['resume-help'];
+    if (q.includes('capabilit')) return mockAIResponses['capability-question'];
+
+    return `### 🤖 Adaptive Career Intelligence Briefing
+
+**Analyzed Candidate:** ${profile.name} · Current Capability Twin: **${profile.capabilityTwinScore}%**
+
+#### 🎯 Strategic Assessment for "${query.slice(0, 40)}":
+Based on your Capability Twin and verified evidence logs, here is your tailored roadmap:
+
+• **Strongest Transferable Capabilities:** Python (87%), Workflow Automation (84%), Troubleshooting (91%).
+• **Critical Verification Focus:** Hands-on AI Evaluation & Cloud Deployment.
+• **Mitigation Strategy:** Career continuity notes are automatically neutralized by AccessHire's **Equity Nudge** and **Job Fairness** agents during employer review.
+
+#### 📋 Recommended Next Steps:
+1. Complete the **4-Step Practical Transition Trial** in the Capability Center.
+2. Export your ATS-tailored resume from **Resume Studio** (94% capability match).
+3. Access authentic **SAP Learning Hub** micro-projects to earn verifiable competency badges.`;
+  };
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
@@ -266,14 +388,9 @@ function WorkspaceContent() {
     setInput('');
     setLoading(true);
 
-    await sleep(1200);
+    await sleep(900);
 
-    // Pick response
-    let response = `I understand you're asking about: "${sentInput.slice(0, 50)}..."\n\nBased on your Capability Twin and current context (AI Operations target role, 74% readiness, 2 gaps), here's my analysis:\n\nYour strongest transferable capabilities are Troubleshooting (91%), Python (87%), and Automation (80%). The critical gap is AI Evaluation (currently 45%, required 70%+).\n\nWould you like me to create a specific action plan for closing this gap?`;
-
-    if (sentInput.toLowerCase().includes('interview')) response = mockAIResponses['interview-prep'];
-    else if (sentInput.toLowerCase().includes('resume')) response = mockAIResponses['resume-help'];
-    else if (sentInput.toLowerCase().includes('capabilit')) response = mockAIResponses['capability-question'];
+    const response = generateRichResponse(sentInput, provider);
 
     const aiMsg: ChatMessage = {
       id: `msg-${Date.now() + 1}`,
@@ -326,10 +443,10 @@ function WorkspaceContent() {
       )}
 
       {activeTab === 'chat' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '1.25rem' }}>
 
           {/* Chat Panel */}
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', height: 560 }}>
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', height: 600 }}>
             {/* Header */}
             <div style={{
               padding: '0.875rem 1rem', borderBottom: '1px solid var(--border)',
@@ -337,8 +454,10 @@ function WorkspaceContent() {
             }}>
               <Sparkles size={16} style={{ color: 'var(--blue-primary)' }} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.825rem', fontWeight: 700 }}>AccessHire AI</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--green)' }}>Context loaded · Ready</div>
+                <div style={{ fontSize: '0.825rem', fontWeight: 700 }}>AccessHire AI Assistant</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--green)' }}>
+                  Context: {profile.name} · Twin {profile.capabilityTwinScore}% · Ready
+                </div>
               </div>
 
               {/* Model selector */}
@@ -390,26 +509,36 @@ function WorkspaceContent() {
                     }}>A</div>
                   )}
                   <div style={{
-                    maxWidth: '80%',
-                    padding: '0.625rem 0.875rem',
+                    maxWidth: '85%',
+                    padding: '0.75rem 1rem',
                     borderRadius: msg.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
                     background: msg.role === 'user' ? 'var(--blue-primary)' :
                       msg.role === 'system' ? 'rgba(16,185,129,0.08)' : 'var(--bg-elevated)',
                     border: msg.role === 'system' ? '1px solid rgba(16,185,129,0.2)' : '1px solid var(--border-subtle)',
                     color: msg.role === 'user' ? 'white' : 'var(--text-primary)',
                     fontSize: '0.8rem',
-                    lineHeight: 1.55,
+                    lineHeight: 1.6,
                     whiteSpace: 'pre-line',
                   }}>
                     {msg.role === 'system' && (
                       <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--green)', marginBottom: '0.25rem', letterSpacing: '0.04em' }}>
-                        🤖 SYSTEM CONTEXT
+                        🤖 SYSTEM CONTEXT LOADED
                       </div>
                     )}
                     {msg.content}
+
                     {msg.provider && msg.role === 'assistant' && (
-                      <div style={{ marginTop: '0.375rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.625rem', paddingTop: '0.375rem', borderTop: '1px solid var(--border-subtle)' }}>
                         <ModelBadge provider={msg.provider} />
+                        <button
+                          onClick={() => copyToClipboard(msg.content, msg.id)}
+                          className="btn-ghost"
+                          style={{ fontSize: '0.675rem', padding: '0.15rem 0.4rem', gap: '0.25rem' }}
+                          title="Copy response"
+                        >
+                          {copiedId === msg.id ? <Check size={11} style={{ color: 'var(--green)' }} /> : <Copy size={11} />}
+                          {copiedId === msg.id ? 'Copied' : 'Copy'}
+                        </button>
                       </div>
                     )}
                   </div>
@@ -435,7 +564,7 @@ function WorkspaceContent() {
             {/* Suggested prompts */}
             {messages.length <= 1 && (
               <div style={{ padding: '0 1rem 0.625rem', display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
-                {suggestedPrompts.map(p => (
+                {personaPrompts.map(p => (
                   <button
                     key={p.key}
                     onClick={() => { setInput(p.label); }}
@@ -457,7 +586,7 @@ function WorkspaceContent() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                placeholder="Ask AccessHire AI — context already loaded..."
+                placeholder={`Ask AccessHire AI about ${profile.name}'s capabilities, interviews, or architecture...`}
                 style={{
                   flex: 1, padding: '0.5rem 0.75rem', background: 'var(--bg-elevated)',
                   border: '1px solid var(--border)', borderRadius: 8,
@@ -482,34 +611,40 @@ function WorkspaceContent() {
             <div className="card" style={{ padding: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
                 <Brain size={15} style={{ color: 'var(--blue-primary)' }} />
-                <span style={{ fontSize: '0.825rem', fontWeight: 700 }}>Active Context</span>
+                <span style={{ fontSize: '0.825rem', fontWeight: 700 }}>Active Persona Context</span>
                 <span style={{
                   marginLeft: 'auto', fontSize: '0.65rem', fontWeight: 700,
                   color: 'var(--green)', background: 'rgba(16,185,129,0.1)',
                   padding: '0.1rem 0.375rem', borderRadius: 999,
                 }}>
-                  {aiContext.contextHealth}% Health
+                  100% Synced
                 </span>
               </div>
 
               {[
-                { label: 'Project', value: aiContext.project },
-                { label: 'Target Role', value: aiContext.targetRole },
-                { label: 'Capability Fit', value: `${aiContext.capabilityFit}%` },
-                { label: 'Resume', value: aiContext.resumeFile },
-                { label: 'Opportunity', value: 'AI Ops Internship' },
+                { label: 'Candidate', value: profile.name },
+                { label: 'Twin Score', value: `${profile.capabilityTwinScore}%` },
+                { label: 'Key Asset', value: profile.patents ? `${profile.patents.length} Patents Registered` : 'Lived Experience Evidence' },
+                { label: 'Top Match', value: topOpp ? topOpp.title : 'AI Systems Architect' },
+                { label: 'Education', value: profile.education || 'Computer Science' },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', gap: '0.375rem', marginBottom: '0.375rem', fontSize: '0.75rem' }}>
                   <span style={{ color: 'var(--text-muted)', width: 80, flexShrink: 0 }}>{item.label}</span>
-                  <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{item.value}</span>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.value}</span>
                 </div>
               ))}
 
-              <div style={{ marginTop: '0.625rem' }}>
-                <div style={{ fontSize: '0.65rem', color: 'var(--amber)', fontWeight: 700, marginBottom: '0.25rem' }}>⚡ GAPS</div>
-                {aiContext.capabilityGaps.map(g => (
-                  <span key={g} className="badge badge-amber" style={{ marginRight: '0.25rem', marginBottom: '0.25rem' }}>{g}</span>
-                ))}
+              <div style={{ marginTop: '0.75rem', paddingTop: '0.625rem', borderTop: '1px solid var(--border-subtle)' }}>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '0.35rem', letterSpacing: '0.04em' }}>
+                  TOP CAPABILITIES
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                  {capabilities.slice(0, 4).map(c => (
+                    <span key={c.name} className="badge badge-blue" style={{ fontSize: '0.65rem' }}>
+                      {c.name} ({c.proficiency}%)
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -535,8 +670,9 @@ function WorkspaceContent() {
 
 export default function WorkspacePage() {
   return (
-    <Suspense fallback={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Loading...</div>}>
+    <Suspense fallback={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Loading AI Workspace...</div>}>
       <WorkspaceContent />
     </Suspense>
   );
 }
+
