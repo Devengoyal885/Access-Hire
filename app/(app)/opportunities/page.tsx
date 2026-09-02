@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -8,7 +8,7 @@ import {
   CheckCircle2, ArrowRight, ExternalLink, Brain,
   FileText, Target, Building2, Globe, Send, Upload,
 } from 'lucide-react';
-import { mockOpportunities, mockActions, getUserCapabilities } from '@/data/mockData';
+import { mockOpportunities, getUserOpportunities, mockActions, getUserCapabilities } from '@/data/mockData';
 import type { Opportunity, OpportunityType } from '@/types';
 import { formatDeadline, sleep } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
@@ -255,8 +255,8 @@ function OpportunitiesContent() {
   const { user } = useAuth();
   const [selectedType, setSelectedType] = useState<OpportunityType | 'all'>('all');
   const [remoteOnly, setRemoteOnly] = useState(false);
-  const [oppsList, setOppsList] = useState<Opportunity[]>(mockOpportunities);
-  const [selectedOpp, setSelectedOpp] = useState<Opportunity | null>(mockOpportunities[0]);
+  const [oppsList, setOppsList] = useState<Opportunity[]>(() => getUserOpportunities(user?.email));
+  const [selectedOpp, setSelectedOpp] = useState<Opportunity | null>(() => getUserOpportunities(user?.email)[0] || null);
   const [sortBy, setSortBy] = useState<'match' | 'deadline'>('match');
   const [applyingOpp, setApplyingOpp] = useState<Opportunity | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -264,6 +264,12 @@ function OpportunitiesContent() {
   const [customPitch, setCustomPitch] = useState('');
   const [recalculating, setRecalculating] = useState(false);
   const [liveMatchTag, setLiveMatchTag] = useState<string>('');
+
+  useEffect(() => {
+    const opps = getUserOpportunities(user?.email);
+    setOppsList(opps);
+    setSelectedOpp(opps[0] || null);
+  }, [user?.email]);
 
   const allTypes: (OpportunityType | 'all')[] = ['all', 'job', 'paid-internship', 'internship', 'hackathon', 'fellowship', 'scholarship', 'research'];
 

@@ -58,17 +58,55 @@ export interface PatentItem {
   id: string;
   title: string;
   applicationNo: string;
-  status: string;
+  status: 'FILED' | 'PUBLISHED' | string;
   year: string;
+}
+
+export interface HeadlineStat {
+  label: string;
+  value: string;
+}
+
+export interface EducationEntry {
+  degree: string;
+  institution: string;
+  year: string;
+  score?: string;
+  distinction?: string;
+}
+
+export interface ProjectEntry {
+  name: string;
+  description: string;
+  period: string;
+  bullets?: string[];
+  tech?: string[];
+}
+
+export interface HackathonEntry {
+  title: string;
+  placement?: string;
+  org?: string;
+  note?: string;
+}
+
+export interface UserContact {
+  phone?: string;
+  linkedin?: string;
+  github?: string;
+  email?: string;
 }
 
 export interface UserProfile {
   id: string;
   name: string;
+  title?: string;
+  summary?: string;
   email?: string;
   age?: number;
   location: string;
   education: string;
+  educationList?: EducationEntry[];
   careerGap?: string;
   targetRole: string;
   capabilityMomentum: number;
@@ -76,6 +114,11 @@ export interface UserProfile {
   futureReadiness: number;
   opportunityMatch: number;
   activeTransitions: number;
+  headlineStats?: HeadlineStat[];
+  contact?: UserContact;
+  certifications?: string[];
+  projectsList?: ProjectEntry[];
+  hackathonsList?: HackathonEntry[];
   capabilities: Capability[];
   patents?: PatentItem[];
   avatar?: string;
@@ -121,7 +164,16 @@ export interface Opportunity {
   tags: string[];
 }
 
-// ─── Action Center ───────────────────────────────────────────
+// ─── Action Center & Telemetry ────────────────────────────────
+
+export type AgentCode = 'SD' | 'MI' | 'LP' | 'IM' | 'BA' | 'EN' | 'JF' | 'AA';
+
+export interface VerificationStep {
+  step: number;
+  title: string;
+  description: string;
+  status: 'completed' | 'active' | 'pending';
+}
 
 export type ActionPriority = 'urgent' | 'high' | 'medium' | 'low';
 export type ActionCategory =
@@ -140,6 +192,8 @@ export interface Action {
   description: string;
   priority: ActionPriority;
   category: ActionCategory;
+  agentCode?: AgentCode;
+  agentName?: string;
   deadline?: string;
   dueDate?: string;
   relatedOpportunity?: string;
@@ -147,6 +201,9 @@ export interface Action {
   estimatedTime?: string;
   completed: boolean;
   createdAt: string;
+  microProjectFraming?: string;
+  prepCourses?: string[];
+  verificationSteps?: VerificationStep[];
 }
 
 // ─── Email Intelligence ───────────────────────────────────────

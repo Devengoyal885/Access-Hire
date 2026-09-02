@@ -12,6 +12,9 @@ import ThemeSwitcher from './ThemeSwitcher';
 import CommandPalette from './CommandPalette';
 import { mockNotifications } from '@/data/mockData';
 import { useAuth } from '@/lib/auth-context';
+import { useSynapse } from '@/lib/synapse-context';
+import { usePathname } from 'next/navigation';
+import { Sparkles, Accessibility } from 'lucide-react';
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -23,9 +26,12 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(mockNotifications);
   const { user, isAuthenticated, logout, openAuthModal, switchView, loginAsDeven } = useAuth();
+  const { synapseActive, toggleSynapse } = useSynapse();
   const router = useRouter();
+  const pathname = usePathname();
 
   const unread = notifications.filter(n => !n.read).length;
+  const isEnterprise = (user?.activeView === 'employer' || pathname.startsWith('/workforce'));
 
   const markAllRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
@@ -61,11 +67,19 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
     resume: <Search size={13} style={{ color: 'var(--violet)' }} />,
   };
 
-  const activeView = user?.activeView || 'candidate';
+  const activeView = user?.activeView || (isEnterprise ? 'employer' : 'candidate');
 
   return (
     <>
-      <header className="topbar" role="banner">
+      <header
+        className="topbar"
+        role="banner"
+        style={{
+          background: isEnterprise ? 'rgba(15,118,110,0.06)' : undefined,
+          borderBottom: isEnterprise ? '1px solid rgba(13,148,136,0.3)' : undefined,
+          transition: 'all 0.2s ease',
+        }}
+      >
         {/* Mobile menu */}
         <button
           onClick={onMenuClick}
@@ -77,11 +91,25 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
           <Menu size={18} />
         </button>
 
+        {/* Mode Tag */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.35rem',
+          padding: '0.2rem 0.55rem', borderRadius: 6,
+          background: isEnterprise ? 'rgba(13,148,136,0.15)' : 'rgba(79,142,247,0.12)',
+          border: `1px solid ${isEnterprise ? 'rgba(13,148,136,0.4)' : 'rgba(79,142,247,0.3)'}`,
+          color: isEnterprise ? '#0d9488' : 'var(--blue-primary)',
+          fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.06em',
+          textTransform: 'uppercase', flexShrink: 0,
+        }}>
+          {isEnterprise ? <Building2 size={12} /> : <User size={12} />}
+          {isEnterprise ? 'ENTERPRISE CONSOLE' : 'CANDIDATE OS'}
+        </div>
+
         {/* Search / Command */}
         <button
           onClick={openCmd}
           style={{
-            flex: 1, maxWidth: 360,
+            flex: 1, maxWidth: 320,
             display: 'flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.4rem 0.75rem',
             background: 'var(--bg-elevated)',
@@ -97,7 +125,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
           id="search-trigger"
         >
           <Search size={13} />
-          <span style={{ flex: 1, textAlign: 'left' }}>Search or run command...</span>
+          <span style={{ flex: 1, textAlign: 'left' }}>Search capabilities, actions...</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
             <kbd style={{
               fontSize: '0.65rem', padding: '0.1rem 0.35rem',
@@ -113,7 +141,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
         {isAuthenticated && user && (user.role === 'both' || user.role === 'employer') && (
           <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--bg-surface)', padding: '0.2rem', borderRadius: 8, border: '1px solid var(--border)' }}>
             <button
-              onClick={() => switchView('candidate')}
+              onClick={() => { switchView('candidate'); if (pathname === '/workforce') router.push('/dashboard'); }}
               style={{
                 padding: '0.25rem 0.625rem',
                 borderRadius: 6,
@@ -129,7 +157,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
               Candidate App
             </button>
             <button
-              onClick={() => switchView('employer')}
+              onClick={() => { switchView('employer'); router.push('/workforce'); }}
               style={{
                 padding: '0.25rem 0.625rem',
                 borderRadius: 6,
@@ -137,7 +165,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                 fontWeight: 700,
                 border: 'none',
                 cursor: 'pointer',
-                background: activeView === 'employer' ? 'var(--violet)' : 'transparent',
+                background: activeView === 'employer' ? '#0d9488' : 'transparent',
                 color: activeView === 'employer' ? 'white' : 'var(--text-muted)',
                 transition: 'all 0.15s',
               }}
@@ -147,15 +175,35 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
           </div>
         )}
 
-        {/* Live Agent Status Badge */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '0.35rem',
-          fontSize: '0.675rem', fontWeight: 700, color: 'var(--green)',
-          background: 'rgba(16,185,129,0.08)', padding: '0.2rem 0.5rem',
-          borderRadius: 999, border: '1px solid rgba(16,185,129,0.25)',
-        }}>
-          <Zap size={11} /> Gemini 1.5 Flash Active
-        </div>
+        {/* Synapse UI Toggle Button */}
+        <button
+          onClick={toggleSynapse}
+          id="synapse-ui-toggle-btn"
+          className="btn-ghost"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '0.35rem',
+            padding: '0.35rem 0.65rem',
+            borderRadius: 7,
+            background: synapseActive ? 'rgba(79,142,247,0.18)' : 'var(--bg-elevated)',
+            border: `1.5px solid ${synapseActive ? 'var(--blue-primary)' : 'var(--border)'}`,
+            color: synapseActive ? 'var(--blue-primary)' : 'var(--text-secondary)',
+            fontSize: '0.725rem', fontWeight: 700,
+            cursor: 'pointer', transition: 'all 0.15s',
+          }}
+          title="Toggle Synapse UI: OpenDyslexic accessible font + high contrast mode"
+        >
+          <Sparkles size={13} style={{ color: synapseActive ? 'var(--blue-primary)' : 'var(--violet)' }} />
+          <span>Synapse UI</span>
+          {synapseActive && (
+            <span style={{
+              fontSize: '0.55rem', padding: '0.05rem 0.3rem',
+              background: 'var(--blue-primary)', color: 'white',
+              borderRadius: 4, fontWeight: 900,
+            }}>
+              ON
+            </span>
+          )}
+        </button>
 
         {/* Right Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginLeft: 'auto' }}>

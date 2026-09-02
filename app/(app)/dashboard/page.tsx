@@ -13,7 +13,10 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Area, AreaChart,
 } from 'recharts';
-import { mockMomentumData, mockActions, mockOpportunities, getUserProfile, getUserCapabilities } from '@/data/mockData';
+import {
+  mockMomentumData, mockActions, mockOpportunities,
+  getUserProfile, getUserCapabilities, getUserActions, getUserOpportunities,
+} from '@/data/mockData';
 import { formatDeadline } from '@/lib/utils';
 import type { Action } from '@/types';
 import { useAuth } from '@/lib/auth-context';
@@ -65,15 +68,20 @@ const actionIcon: Record<string, React.ReactNode> = {
 export default function DashboardPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const [actionsList, setActionsList] = useState(mockActions);
+  const [actionsList, setActionsList] = useState(() => getUserActions(user?.email));
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
   const [actionDoneMsg, setActionDoneMsg] = useState('');
 
   const activeProfile = getUserProfile(user?.email);
   const activeCapabilities = getUserCapabilities(user?.email);
+  const activeOpportunities = getUserOpportunities(user?.email);
+
+  useEffect(() => {
+    setActionsList(getUserActions(user?.email));
+  }, [user?.email]);
 
   const topActions = actionsList.filter(a => !a.completed).slice(0, 4);
-  const topOpps = mockOpportunities.slice(0, 3);
+  const topOpps = activeOpportunities.slice(0, 3);
 
   const handleExecuteAction = (action: Action) => {
     if (action.category === 'application') {
@@ -306,8 +314,17 @@ export default function DashboardPage() {
                   </div>
 
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>{action.title}</span>
+                      {action.agentCode && (
+                        <span style={{
+                          fontSize: '0.575rem', fontWeight: 800, padding: '0.05rem 0.35rem',
+                          borderRadius: 4, background: 'rgba(79,142,247,0.12)', color: 'var(--blue-primary)',
+                          border: '1px solid rgba(79,142,247,0.25)',
+                        }}>
+                          [{action.agentCode}]
+                        </span>
+                      )}
                       <span style={{
                         fontSize: '0.6rem', fontWeight: 700,
                         padding: '0.1rem 0.375rem', borderRadius: 999,
