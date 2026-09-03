@@ -133,7 +133,7 @@ lib/
 
 | Persona | Role / Background | Key Highlights |
 |---------|-------------------|----------------|
-| **Deven Goyal** *(Flagship)* | Neural Nexus \| AI Systems Architect | 20+ Patents, Vibe Coding 2nd Place (676 Teams), Chandigarh Univ CGPA 8.21, NVIDIA LLM Certified |
+| **Deven Goyal** *(Flagship)* | Neural Nexus \| AI Systems Architect | 20+ Patents, Vibe Coding 2nd Place (676 Teams), NVIDIA LLM Certified |
 | **Priya Sharma** | IT Support $\rightarrow$ AI Operations | 3-Year Career Gap, Hubli Festival Operations, Verified Practical Trial (83%) |
 | **Sunita Verma** | Healthcare Logistics & Caregiver Returnee | 3-Year Elder Care Logistics, Python Data Automation, Lucknow Community Lead |
 
