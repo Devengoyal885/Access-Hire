@@ -240,7 +240,7 @@ export default function AuthModal() {
                         <span className="badge badge-green">Dual Access</span>
                       </div>
                       <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                        goyaldeven4809@gmail.com · 3 Patents · CSE (CGPA 8.21)
+                        goyaldeven4809@gmail.com · 3 Patents · CSE
                       </div>
                     </div>
                     <ArrowRight size={16} style={{ color: 'var(--green)' }} />

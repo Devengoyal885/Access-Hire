@@ -345,7 +345,7 @@ interface PipelineArchitecture {
 #### 📊 Current Capability Strengths:
 • **AI Systems & LLM Architecture:** 98% (Verified via NVIDIA Certification & 21 Patents)
 • **Full-Stack Engineering & Fast Prototyping:** 94% (Vibe Coding 2nd Place / 676 Teams)
-• **Algorithm Design & Problem Solving:** 92% (Chandigarh Univ CGPA 8.21, Kargil Distinction)
+• **Algorithm Design & Problem Solving:** 92% (Chandigarh Univ, Kargil Distinction)
 
 #### ⚡ Actionable 3-Step Strategy:
 1. **Target Opportunity:** Submit application to **NVIDIA AI Systems Architecture Fellow** (Deadline: 15 Sept 2026).

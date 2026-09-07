@@ -41,7 +41,7 @@ Unconscious Bias Filters ───────►   Bias Audit Trail & Equity Nu
 - **4-Tile Headline Stat Strip**: `20+ PATENTS` · `2nd — VIBE CODING 2026` · `676 TEAMS COMPETED` · `1st — HACKATHON WINS`
 - **21 Registered Patents**: Full Indian Patent Office disclosures with Application Numbers, status (FILED / PUBLISHED), and filing dates across Wearable AI, Smart Biosensors, and IoT.
 - **Projects & Hackathons**: *MailIQ* (AI Email Platform), *Cogniflow AI* (Analytics Dashboard), *IIT Ropar 1st Prize*, *Stack Sprint 1.0 1st Prize*, *India Innovates Top 1000 / 25.5k*.
-- **Education & Certifications**: B.E. CSE Full Stack Development (Chandigarh University, CGPA 8.21, Kargil Batch distinction), Indus Public School, NVIDIA LLM Application Developer.
+- **Education & Certifications**: B.E. CSE Full Stack Development (Chandigarh University, Kargil Batch distinction), Indus Public School, NVIDIA LLM Application Developer.
 
 ### 3. 📄 Dynamic Resume Studio & Client-Side PDF Export
 - **Zero Cross-Contamination**: Master Profile, Resume Studio, Opportunity Radar, and Action Center dynamically resolve the authenticated user session (Deven Goyal, Priya Sharma, or Sunita Verma).

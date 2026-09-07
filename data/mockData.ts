@@ -308,7 +308,7 @@ export const mockDevenCapabilities: Capability[] = [
     recency: 'high',
     evidence: [
       { source: 'work', label: 'Runner-Up — Peace of Code Hackathon, IIT Ropar', date: '2025-05', confidence: 96, verified: true },
-      { source: 'assessment', label: 'Chandigarh University CSE Full Stack (CGPA 8.21)', date: '2026-01', confidence: 94, verified: true },
+      { source: 'assessment', label: 'Chandigarh University CSE Full Stack', date: '2026-01', confidence: 94, verified: true },
       { source: 'github', label: 'Honorable Mention — GitHub README Hackathon (Devpost)', date: '2025-09', confidence: 92, verified: true },
     ],
     growth: [
@@ -347,7 +347,7 @@ export const mockDevenUser: UserProfile = {
   summary: 'Passionate technology innovator focused on Artificial Intelligence, Full Stack Development, Embedded Systems, IoT, and product innovation. Experienced in developing practical, research-driven solutions that solve real-world challenges. Actively involved in hackathons, intellectual property development, global certifications, and engineering innovation.',
   email: 'goyaldeven4809@gmail.com',
   location: 'Chandigarh / Haryana, India',
-  education: 'B.E. Computer Science Engineering (Full Stack Development), Chandigarh University (2024–2028, CGPA 8.21)',
+  education: 'B.E. Computer Science Engineering (Full Stack Development), Chandigarh University (2024–2028)',
   targetRole: 'AI Systems Architect / Full Stack Innovation Engineer',
   capabilityMomentum: 26,
   capabilityTwinScore: 94,
@@ -407,7 +407,6 @@ export const mockDevenUser: UserProfile = {
       degree: 'Bachelor of Engineering (B.E.), Computer Science Engineering (Full Stack Development)',
       institution: 'Chandigarh University',
       year: '2024–2028',
-      score: 'CGPA 8.21',
       distinction: 'Kargil Batch (5th Semester) — selected for academic excellence, discipline, and overall performance.',
     },
     {
@@ -1587,7 +1586,7 @@ export const mockEquityCandidates: EquityCandidate[] = [
     evidenceConfidence: 98,
     careerGap: 'None (Engineering Student & Innovator)',
     location: 'Chandigarh / Haryana, India',
-    credentials: 'B.E. Computer Science Engineering (CGPA 8.21) · 3 Patents',
+    credentials: 'B.E. Computer Science Engineering · 3 Patents',
   },
   {
     id: 'eq-3',

@@ -184,7 +184,7 @@ Requirements:
     if (profile.id === 'user-deven' || profile.name.toLowerCase().includes('deven')) {
       return [
         { label: 'Personal Information', detail: `${profile.name} · ${profile.contact?.phone || '8708252284'}` },
-        { label: 'Education', detail: 'B.E. CSE Full Stack, Chandigarh University (CGPA 8.21)' },
+        { label: 'Education', detail: 'B.E. CSE Full Stack, Chandigarh University' },
         { label: 'Patent Disclosures', detail: '21 Filed/Published Patents' },
         { label: 'AI Projects', detail: 'MailIQ & Cogniflow AI Analytics' },
         { label: 'Hackathons', detail: 'Vibe Coding 2nd (676 Teams), IIT Ropar 1st' },

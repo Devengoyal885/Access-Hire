@@ -23,7 +23,7 @@ All requirements across the 8 sections have been implemented, verified via `npm 
 - **Location**: [`data/mockData.ts`](file:///c:/Users/goyal/Downloads/Star%20Coders/Access-Hire/data/mockData.ts) & [`app/(app)/profile/page.tsx`](file:///c:/Users/goyal/Downloads/Star%20Coders/Access-Hire/app/(app)/profile/page.tsx)
 - **Headline Stat Strip (4 Tiles)**: `20+ PATENTS` | `2nd — VIBE CODING 2026` | `676 TEAMS COMPETED` | `1st — HACKATHON WINS`.
 - **21 Patents Registered**: Complete Indian Patent Office disclosures with Application Numbers, status (FILED / PUBLISHED), and filing years.
-- **Education**: B.E. CSE Full Stack Development (Chandigarh University, CGPA 8.21, Kargil Batch distinction), Indus Public School (Class XII 84%, Class X 87%).
+- **Education**: B.E. CSE Full Stack Development (Chandigarh University, Kargil Batch distinction), Indus Public School (Class XII 84%, Class X 87%).
 - **Contact Details**: Phone `8708252284`, LinkedIn `Deven Goyal`, GitHub `Devengoyal885`, Email `goyaldeven4809@gmail.com`.
 - **Certifications & Projects**: NVIDIA LLM Rapid Application Development, MailIQ, Cogniflow AI.
 
